@@ -1,0 +1,592 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Silt is an offline-first research notebook for ecologists and conservation teams.">
+  <title>Silt — Field notes, even off the map</title>
+  <style>
+    :root {
+      --ink: #17271e;
+      --ink-soft: #405047;
+      --forest: #294a36;
+      --moss: #668a67;
+      --moss-dark: #3e654a;
+      --sage: #dce8d8;
+      --pale: #edf2e9;
+      --paper: #fbfaf5;
+      --sand: #f2eee4;
+      --line: #d9dfd5;
+      --amber: #c88c3b;
+      --amber-pale: #f7e9cb;
+      --coral: #d86f52;
+      --white: #ffffff;
+      --shadow: 0 22px 60px rgba(38, 58, 44, .14);
+      --shadow-small: 0 8px 24px rgba(38, 58, 44, .10);
+      --radius-lg: 26px;
+      --radius-md: 16px;
+      --radius-sm: 10px;
+    }
+
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      min-width: 320px;
+      color: var(--ink);
+      background: var(--paper);
+      font-family: ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      -webkit-font-smoothing: antialiased;
+      text-rendering: optimizeLegibility;
+    }
+    a { color: inherit; text-decoration: none; }
+    button, a { -webkit-tap-highlight-color: transparent; }
+    button { font: inherit; }
+    :focus-visible { outline: 3px solid #d6a24c; outline-offset: 3px; }
+    .skip-link {
+      position: absolute; left: 12px; top: -50px; z-index: 20;
+      padding: 10px 14px; border-radius: 8px; background: var(--ink); color: white;
+    }
+    .skip-link:focus { top: 12px; }
+    .container { width: min(1160px, calc(100% - 48px)); margin: 0 auto; }
+    .eyebrow {
+      display: inline-flex; align-items: center; gap: 8px;
+      color: var(--moss-dark); font-size: 11px; line-height: 1; letter-spacing: .13em;
+      font-weight: 750; text-transform: uppercase;
+    }
+    .eyebrow-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--coral); }
+    h1, h2, h3, p { margin: 0; }
+    h1, h2, h3 { letter-spacing: -.04em; }
+    h1 {
+      max-width: 720px; margin-top: 22px; font-size: clamp(50px, 6.2vw, 85px);
+      line-height: .97; font-weight: 640;
+    }
+    h1 em { color: var(--moss-dark); font-style: normal; }
+    h2 { font-size: clamp(34px, 4.5vw, 58px); line-height: 1.02; font-weight: 620; }
+    h3 { font-size: 20px; line-height: 1.12; font-weight: 650; }
+    .body-large { color: var(--ink-soft); font-size: 18px; line-height: 1.55; }
+    .body-small { color: var(--ink-soft); font-size: 14px; line-height: 1.55; }
+
+    /* Navigation */
+    .site-nav {
+      position: relative; z-index: 10; height: 78px; display: flex; align-items: center;
+      justify-content: space-between;
+    }
+    .brand { display: inline-flex; align-items: center; gap: 10px; font-size: 20px; font-weight: 750; letter-spacing: -.045em; }
+    .brand-mark { display: block; width: 29px; height: 29px; }
+    .nav-links { display: flex; align-items: center; gap: 30px; color: #58675d; font-size: 13px; font-weight: 620; }
+    .nav-links a { transition: color .2s ease; }
+    .nav-links a:hover { color: var(--ink); }
+    .nav-right { display: flex; align-items: center; gap: 22px; }
+    .nav-login { color: var(--ink-soft); font-size: 13px; font-weight: 650; }
+    .button {
+      display: inline-flex; align-items: center; justify-content: center; gap: 9px;
+      min-height: 45px; padding: 0 19px; border: 1px solid transparent; border-radius: 999px;
+      cursor: pointer; font-size: 13px; font-weight: 700; letter-spacing: -.01em;
+      transition: transform .2s ease, box-shadow .2s ease, background .2s ease;
+    }
+    .button:hover { transform: translateY(-2px); }
+    .button-dark { background: var(--ink); color: white; box-shadow: 0 6px 16px rgba(23,39,30,.15); }
+    .button-dark:hover { background: var(--forest); box-shadow: 0 10px 24px rgba(23,39,30,.2); }
+    .button-light { background: rgba(255,255,255,.76); color: var(--ink); border-color: var(--line); }
+    .button-light:hover { background: var(--white); }
+    .menu-toggle { display: none; width: 42px; height: 42px; border: 1px solid var(--line); border-radius: 10px; background: white; cursor: pointer; }
+    .menu-toggle svg { width: 19px; height: 19px; }
+
+    /* Hero */
+    .hero {
+      position: relative; overflow: hidden; padding: 85px 0 96px;
+      background: linear-gradient(155deg, #edf3e9 0%, #f7f7f0 50%, #faf6ed 100%);
+    }
+    .hero::after {
+      position: absolute; content: ""; width: 660px; height: 660px; right: -230px; top: -270px;
+      border: 1px solid rgba(102, 138, 103, .17); border-radius: 50%;
+      box-shadow: 0 0 0 34px rgba(102,138,103,.035), 0 0 0 70px rgba(102,138,103,.027);
+      pointer-events: none;
+    }
+    .hero-layout { position: relative; z-index: 1; display: grid; grid-template-columns: .86fr 1.14fr; align-items: center; gap: 58px; }
+    .hero-copy { padding-bottom: 14px; }
+    .hero-copy .body-large { max-width: 500px; margin-top: 25px; }
+    .hero-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 13px; margin-top: 30px; }
+    .hero-note { display: inline-flex; align-items: center; gap: 7px; margin-top: 17px; color: #718077; font-size: 12px; }
+    .hero-note svg { color: var(--moss); }
+    .hero-trust { display: flex; align-items: center; gap: 12px; margin-top: 46px; }
+    .faces { display: flex; padding-left: 4px; }
+    .face { display: grid; place-items: center; width: 27px; height: 27px; margin-left: -4px; border: 2px solid #eff4eb; border-radius: 50%; color: white; font-size: 8px; font-weight: 800; }
+    .face:nth-child(1) { background: #8e705c; }
+    .face:nth-child(2) { background: #526f71; }
+    .face:nth-child(3) { background: #bc7b58; }
+    .face:nth-child(4) { background: #5b7a53; }
+    .trust-text { color: #69776e; font-size: 12px; line-height: 1.35; }
+    .trust-text strong { display: block; color: var(--ink-soft); font-size: 13px; }
+
+    /* Product demonstration */
+    .demo-wrap { position: relative; min-width: 0; }
+    .demo-wrap::before {
+      content: ""; position: absolute; inset: 25px -20px -20px 20px; border-radius: 30px;
+      background: #dce9d5; transform: rotate(2.7deg); opacity: .7;
+    }
+    .product-shell {
+      position: relative; overflow: hidden; border: 1px solid #d4ded1; border-radius: 20px;
+      background: #f8faf5; box-shadow: var(--shadow); transform: rotate(-1.4deg);
+    }
+    .window-bar { display: flex; align-items: center; justify-content: space-between; padding: 13px 16px; border-bottom: 1px solid #e0e7dc; background: rgba(255,255,255,.72); }
+    .window-brand { display: flex; align-items: center; gap: 8px; color: #536359; font-size: 11px; font-weight: 750; }
+    .window-brand-dot { width: 17px; height: 17px; border-radius: 5px; background: var(--forest); }
+    .window-status { display: flex; align-items: center; gap: 5px; padding: 5px 8px; border-radius: 999px; background: var(--amber-pale); color: #9c6725; font-size: 9px; font-weight: 750; }
+    .window-status span { width: 5px; height: 5px; border-radius: 50%; background: var(--amber); }
+    .window-dots { display: flex; gap: 4px; margin-left: 14px; }
+    .window-dots i { display: block; width: 4px; height: 4px; border-radius: 50%; background: #b9c7b9; }
+    .app-grid { display: grid; grid-template-columns: 162px 1fr; min-height: 407px; }
+    .records { padding: 17px 12px; border-right: 1px solid #e0e7dc; background: #f5f8f2; }
+    .records-head { display: flex; align-items: center; justify-content: space-between; margin: 0 5px 14px; color: #69776d; font-size: 9px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; }
+    .add-record { display: grid; place-items: center; width: 20px; height: 20px; border: 0; border-radius: 7px; background: #e0ecdc; color: var(--moss-dark); cursor: pointer; }
+    .search-box { display: flex; align-items: center; gap: 6px; height: 27px; padding: 0 8px; margin-bottom: 12px; border: 1px solid #e0e7dc; border-radius: 7px; background: white; color: #a6b1a8; font-size: 9px; }
+    .search-box svg { width: 11px; }
+    .record { position: relative; padding: 9px 8px; margin: 3px 0; border-radius: 9px; cursor: pointer; }
+    .record.selected { background: white; box-shadow: 0 3px 10px rgba(49,76,51,.07); }
+    .record.selected::before { position: absolute; content: ""; width: 3px; height: 21px; left: 0; top: 12px; border-radius: 0 3px 3px 0; background: var(--coral); }
+    .record-title { color: #44564a; font-size: 10px; font-weight: 760; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .record-meta { display: flex; align-items: center; gap: 4px; margin-top: 4px; color: #93a197; font-size: 8px; }
+    .record-meta svg { width: 9px; height: 9px; }
+    .record-tag { display: inline-block; padding: 2px 5px; border-radius: 4px; background: #e5efe0; color: #617d64; font-size: 7px; font-weight: 700; }
+    .map-panel { position: relative; overflow: hidden; background: #dfe8d5; }
+    .map-panel::after { position: absolute; content: ""; inset: 0; background: linear-gradient(125deg, rgba(255,255,255,.23), transparent 40%, rgba(70,108,70,.06)); pointer-events: none; }
+    .map-tools { position: absolute; z-index: 2; top: 14px; right: 14px; display: flex; gap: 5px; }
+    .map-tool { display: grid; place-items: center; width: 27px; height: 27px; border: 1px solid #d0ddc9; border-radius: 7px; background: rgba(255,255,255,.9); color: #687b6b; box-shadow: 0 3px 10px rgba(49,76,51,.08); }
+    .map-tool svg { width: 12px; height: 12px; }
+    .map-label { position: absolute; z-index: 2; top: 16px; left: 17px; padding: 5px 8px; border: 1px solid rgba(200,215,195,.9); border-radius: 6px; background: rgba(249,252,243,.87); color: #607360; font-size: 8px; font-weight: 750; }
+    .map-drawing { position: absolute; inset: 0; width: 100%; height: 100%; }
+    .map-pin { position: absolute; z-index: 3; display: grid; place-items: center; width: 21px; height: 21px; border: 3px solid white; border-radius: 50% 50% 50% 4px; background: var(--coral); box-shadow: 0 4px 9px rgba(75,70,46,.25); transform: rotate(-45deg); }
+    .map-pin::after { content: ""; width: 5px; height: 5px; border-radius: 50%; background: white; }
+    .pin-one { left: 36%; top: 34%; }
+    .pin-two { left: 64%; top: 52%; background: var(--moss-dark); }
+    .pin-three { left: 73%; top: 27%; background: var(--amber); transform: rotate(-45deg) scale(.75); }
+    .map-scale { position: absolute; z-index: 3; left: 18px; bottom: 23px; color: #6b7e6b; font-size: 8px; font-weight: 700; }
+    .scale-line { display: block; width: 40px; height: 4px; margin-bottom: 4px; border-right: 1px solid #6b7e6b; border-left: 1px solid #6b7e6b; border-bottom: 1px solid #6b7e6b; }
+    .observation-card { position: absolute; z-index: 5; right: 17px; bottom: 16px; width: min(248px, calc(100% - 34px)); padding: 14px; border: 1px solid rgba(207,219,199,.9); border-radius: 12px; background: rgba(255,255,252,.94); box-shadow: 0 10px 24px rgba(45,68,45,.16); }
+    .observation-top { display: flex; justify-content: space-between; align-items: center; }
+    .observation-label { color: #78877b; font-size: 8px; font-weight: 800; letter-spacing: .1em; text-transform: uppercase; }
+    .observation-check { display: inline-flex; align-items: center; gap: 4px; padding: 4px 6px; border-radius: 5px; background: #e4f0df; color: #527454; font-size: 8px; font-weight: 750; }
+    .observation-check svg { width: 10px; height: 10px; }
+    .observation-name { margin-top: 9px; color: var(--ink); font-size: 16px; font-weight: 760; letter-spacing: -.035em; }
+    .observation-details { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 8px; }
+    .detail-pill { display: inline-flex; align-items: center; gap: 4px; padding: 5px 6px; border-radius: 5px; background: #f2f5ed; color: #607164; font-size: 8px; font-weight: 650; }
+    .detail-pill svg { width: 10px; height: 10px; color: var(--moss); }
+    .observation-footer { display: flex; align-items: center; justify-content: space-between; padding-top: 11px; margin-top: 11px; border-top: 1px solid #e6ebe2; color: #8b988c; font-size: 8px; }
+    .demo-caption { display: flex; align-items: center; justify-content: center; gap: 7px; margin-top: 20px; color: #718176; font-size: 11px; }
+    .demo-caption svg { color: var(--coral); }
+
+    /* Logo strip */
+    .logo-strip { padding: 25px 0; border-bottom: 1px solid var(--line); background: var(--paper); }
+    .logo-strip-inner { display: flex; align-items: center; justify-content: space-between; gap: 25px; }
+    .logo-strip p { color: #89968b; font-size: 11px; font-weight: 700; letter-spacing: .02em; }
+    .orgs { display: flex; align-items: center; justify-content: flex-end; gap: clamp(20px, 4vw, 52px); color: #8e9b90; }
+    .org { display: flex; align-items: center; gap: 7px; font-size: 12px; font-weight: 750; letter-spacing: -.02em; }
+    .org-mark { display: inline-block; width: 14px; height: 14px; border: 2px solid currentColor; border-radius: 50%; opacity: .65; }
+    .org:nth-child(2) .org-mark { border-radius: 4px; transform: rotate(45deg); }
+    .org:nth-child(3) .org-mark { border-radius: 50% 50% 4px 50%; }
+
+    /* Capabilities */
+    .capabilities { padding: 132px 0 125px; }
+    .section-intro { display: flex; align-items: flex-end; justify-content: space-between; gap: 40px; margin-bottom: 46px; }
+    .section-intro .body-large { max-width: 350px; }
+    .capability-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
+    .capability-card { min-height: 252px; padding: 27px 26px 25px; border: 1px solid var(--line); border-radius: var(--radius-md); background: #f5f7f0; }
+    .capability-card:nth-child(2) { background: #f7f2e8; border-color: #e6dfd0; }
+    .capability-card:nth-child(3) { background: #edf3ea; border-color: #d8e6d4; }
+    .capability-icon { display: grid; place-items: center; width: 43px; height: 43px; margin-bottom: 42px; border-radius: 12px; background: white; color: var(--moss-dark); box-shadow: 0 4px 12px rgba(44,74,47,.07); }
+    .capability-icon svg { width: 20px; height: 20px; }
+    .capability-card:nth-child(2) .capability-icon { color: #a4712f; }
+    .capability-card:nth-child(3) .capability-icon { color: var(--coral); }
+    .capability-card p { margin-top: 11px; color: #67766c; font-size: 14px; line-height: 1.5; }
+
+    /* Offline story */
+    .offline-section { padding: 107px 0; background: var(--forest); color: white; }
+    .offline-layout { display: grid; grid-template-columns: .9fr 1.1fr; gap: 95px; align-items: center; }
+    .offline-section .eyebrow { color: #bfd4bb; }
+    .offline-section .eyebrow-dot { background: #efac68; }
+    .offline-section h2 { max-width: 470px; margin-top: 20px; }
+    .offline-section .body-large { max-width: 440px; margin-top: 24px; color: #cadaca; }
+    .offline-link { display: inline-flex; align-items: center; gap: 8px; margin-top: 29px; color: #f1c47f; font-size: 13px; font-weight: 750; }
+    .offline-link svg { transition: transform .2s; }
+    .offline-link:hover svg { transform: translateX(4px); }
+    .sync-board { position: relative; padding: 34px 35px 30px; border: 1px solid rgba(220,236,212,.2); border-radius: var(--radius-lg); background: rgba(255,255,255,.065); }
+    .sync-board-title { display: flex; align-items: center; justify-content: space-between; padding-bottom: 27px; color: #e5f0e2; font-size: 12px; font-weight: 730; }
+    .secure-pill { display: inline-flex; align-items: center; gap: 6px; padding: 6px 8px; border: 1px solid rgba(213,235,205,.2); border-radius: 999px; color: #bbd8ba; font-size: 9px; font-weight: 650; }
+    .secure-pill svg { width: 11px; color: #e4bb76; }
+    .sync-line { position: relative; display: grid; grid-template-columns: 92px 1fr 92px; align-items: center; gap: 18px; }
+    .sync-line::before { position: absolute; content: ""; top: 50%; right: 95px; left: 95px; border-top: 1px dashed rgba(206,230,200,.34); }
+    .sync-node { position: relative; z-index: 1; display: flex; flex-direction: column; align-items: center; gap: 10px; text-align: center; }
+    .node-icon { display: grid; place-items: center; width: 54px; height: 54px; border: 1px solid rgba(220,238,214,.22); border-radius: 16px; background: #385e44; color: #e9f1e4; }
+    .node-icon svg { width: 23px; height: 23px; }
+    .sync-node strong { color: #e9f1e3; font-size: 11px; font-weight: 750; }
+    .sync-node span { color: #a9c2a9; font-size: 10px; }
+    .sync-arrow { position: relative; z-index: 1; display: flex; align-items: center; justify-content: center; height: 33px; border-radius: 50%; background: #486c4c; color: #e8f0e4; }
+    .sync-arrow svg { width: 15px; }
+    .sync-list { display: grid; gap: 8px; margin-top: 33px; padding: 15px 14px; border-radius: 12px; background: rgba(15,36,24,.2); }
+    .sync-item { display: flex; align-items: center; gap: 8px; color: #c2d5bd; font-size: 10px; }
+    .sync-item::before { content: ""; width: 6px; height: 6px; flex: 0 0 6px; border-radius: 50%; background: #e3ad63; }
+    .sync-item:nth-child(2)::before { background: #8db78a; }
+    .sync-item:nth-child(3)::before { background: #d77e65; }
+
+    /* Testimonial */
+    .testimonial-section { padding: 128px 0; }
+    .quote-card { display: grid; grid-template-columns: .8fr 1.2fr; align-items: center; gap: 75px; padding: 54px 65px; border-radius: var(--radius-lg); background: var(--sand); }
+    .quote-mark { display: block; margin-bottom: 19px; color: var(--coral); font-family: Georgia, serif; font-size: 64px; line-height: .5; }
+    blockquote { margin: 0; color: var(--ink); font-size: clamp(24px, 3vw, 36px); line-height: 1.16; letter-spacing: -.045em; font-weight: 600; }
+    .quote-person { display: flex; align-items: center; gap: 13px; }
+    .person-avatar { display: grid; place-items: center; width: 42px; height: 42px; border-radius: 50%; background: #9d725b; color: white; font-size: 11px; font-weight: 800; }
+    .person-name { color: var(--ink); font-size: 13px; font-weight: 750; }
+    .person-role { margin-top: 3px; color: #7b887e; font-size: 11px; }
+
+    /* Pricing */
+    .pricing-section { padding: 116px 0 132px; background: #edf3e9; }
+    .pricing-heading { display: flex; align-items: end; justify-content: space-between; gap: 30px; margin-bottom: 44px; }
+    .pricing-heading .body-large { max-width: 325px; }
+    .pricing-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; max-width: 830px; }
+    .price-card { padding: 31px 31px 29px; border: 1px solid #d4e1d0; border-radius: var(--radius-md); background: rgba(255,255,255,.72); }
+    .price-card.team { position: relative; border-color: var(--forest); background: var(--forest); color: white; box-shadow: 0 16px 34px rgba(34,68,44,.16); }
+    .popular { position: absolute; top: 17px; right: 18px; padding: 6px 8px; border-radius: 999px; background: #e5b46c; color: #344833; font-size: 9px; font-weight: 800; }
+    .price-label { color: #68796c; font-size: 12px; font-weight: 750; }
+    .team .price-label { color: #bed2ba; }
+    .price-amount { display: flex; align-items: baseline; gap: 5px; margin-top: 16px; }
+    .price-amount strong { font-size: 46px; line-height: 1; letter-spacing: -.06em; }
+    .price-amount span { color: #879489; font-size: 12px; }
+    .team .price-amount span { color: #afc3ad; }
+    .price-description { min-height: 41px; margin-top: 13px; color: #6e7c72; font-size: 13px; line-height: 1.45; }
+    .team .price-description { color: #c0d1be; }
+    .price-card .button { width: 100%; margin-top: 24px; }
+    .team .button { background: #f5c77e; color: #263d2a; }
+    .price-features { display: grid; gap: 10px; padding-top: 22px; margin-top: 25px; border-top: 1px solid #dfe7db; }
+    .team .price-features { border-color: rgba(222,238,218,.18); }
+    .price-feature { display: flex; align-items: center; gap: 8px; color: #556659; font-size: 12px; }
+    .team .price-feature { color: #d1dfcf; }
+    .price-feature svg { width: 14px; height: 14px; color: var(--moss); flex: 0 0 14px; }
+    .team .price-feature svg { color: #f0bd74; }
+    .billing-note { margin-top: 22px; color: #829083; font-size: 11px; }
+
+    /* Final CTA and footer */
+    .final-cta { position: relative; overflow: hidden; padding: 121px 0 130px; text-align: center; background: var(--paper); }
+    .final-cta::before, .final-cta::after { position: absolute; content: ""; width: 280px; height: 280px; border: 1px solid #dbe6d7; border-radius: 50%; pointer-events: none; }
+    .final-cta::before { top: -180px; left: -94px; box-shadow: 0 0 0 25px rgba(218,231,213,.36), 0 0 0 53px rgba(218,231,213,.22); }
+    .final-cta::after { right: -95px; bottom: -185px; box-shadow: 0 0 0 25px rgba(218,231,213,.36), 0 0 0 53px rgba(218,231,213,.22); }
+    .final-cta-inner { position: relative; z-index: 1; }
+    .final-cta h2 { max-width: 650px; margin: 18px auto 0; }
+    .final-cta .body-large { max-width: 420px; margin: 21px auto 0; }
+    .final-cta .button { margin-top: 29px; }
+    .footer { padding: 27px 0 33px; border-top: 1px solid var(--line); }
+    .footer-inner { display: flex; align-items: center; justify-content: space-between; gap: 25px; }
+    .footer .brand { font-size: 17px; }
+    .footer .brand-mark { width: 24px; height: 24px; }
+    .footer-links { display: flex; gap: 23px; color: #77857a; font-size: 11px; font-weight: 620; }
+    .footer-links a:hover { color: var(--ink); }
+    .copyright { color: #9aa49b; font-size: 10px; }
+
+    /* Tiny interactive toast */
+    .toast { position: fixed; z-index: 20; right: 20px; bottom: 20px; display: flex; align-items: center; gap: 8px; max-width: calc(100% - 40px); padding: 12px 15px; border: 1px solid #d2e1cd; border-radius: 10px; background: #f7fbf4; color: #47654a; box-shadow: var(--shadow-small); font-size: 12px; font-weight: 650; opacity: 0; transform: translateY(12px); pointer-events: none; transition: opacity .2s, transform .2s; }
+    .toast.show { opacity: 1; transform: translateY(0); }
+    .toast svg { width: 15px; color: var(--moss-dark); }
+
+    @media (max-width: 1050px) {
+      .hero-layout { gap: 30px; }
+      .offline-layout { gap: 45px; }
+      .quote-card { gap: 45px; padding: 45px; }
+    }
+    @media (max-width: 820px) {
+      .container { width: min(100% - 36px, 620px); }
+      .site-nav { height: 70px; }
+      .nav-links, .nav-login { display: none; }
+      .nav-right { gap: 10px; }
+      .menu-toggle { display: grid; place-items: center; }
+      .nav-mobile-open .nav-links { position: absolute; display: flex; flex-direction: column; align-items: stretch; gap: 0; top: 63px; right: 18px; left: 18px; padding: 8px; border: 1px solid var(--line); border-radius: 14px; background: white; box-shadow: var(--shadow-small); }
+      .nav-mobile-open .nav-links a { padding: 12px; border-radius: 8px; }
+      .nav-mobile-open .nav-links a:hover { background: var(--pale); }
+      .hero { padding: 65px 0 75px; }
+      .hero-layout, .offline-layout { grid-template-columns: 1fr; }
+      .hero-copy { padding: 0; }
+      .hero-copy .body-large { max-width: 600px; }
+      .hero-trust { margin-top: 35px; }
+      .demo-wrap { max-width: 620px; width: calc(100% - 12px); margin: 15px auto 0; }
+      .logo-strip-inner { flex-direction: column; align-items: flex-start; gap: 18px; }
+      .orgs { justify-content: flex-start; flex-wrap: wrap; gap: 17px 28px; }
+      .capabilities, .testimonial-section, .pricing-section { padding: 90px 0; }
+      .section-intro, .pricing-heading { display: block; }
+      .section-intro .body-large, .pricing-heading .body-large { margin-top: 17px; }
+      .capability-grid { grid-template-columns: 1fr; }
+      .capability-card { min-height: 0; }
+      .capability-icon { margin-bottom: 28px; }
+      .offline-section { padding: 85px 0; }
+      .sync-board { margin-top: 25px; }
+      .quote-card { grid-template-columns: 1fr; gap: 34px; padding: 38px 30px; }
+      .pricing-grid { max-width: none; }
+      .final-cta { padding: 92px 0 100px; }
+    }
+    @media (max-width: 510px) {
+      .container { width: min(100% - 30px, 440px); }
+      .nav-cta { padding: 0 14px; min-height: 40px; }
+      h1 { font-size: clamp(46px, 14vw, 64px); }
+      .body-large { font-size: 16px; }
+      .hero { padding-top: 53px; }
+      .hero-actions { margin-top: 24px; }
+      .hero-actions .button { flex: 1; }
+      .hero-note { align-items: flex-start; }
+      .product-shell { transform: none; border-radius: 16px; }
+      .demo-wrap { width: 100%; }
+      .demo-wrap::before { inset: 13px -7px -9px 7px; }
+      .app-grid { grid-template-columns: 105px 1fr; min-height: 365px; }
+      .records { padding: 14px 8px; }
+      .records-head { margin: 0 3px 11px; font-size: 8px; }
+      .search-box { padding: 0 5px; }
+      .record { padding: 8px 5px; }
+      .record-title { font-size: 9px; }
+      .record-meta { font-size: 7px; }
+      .map-label { left: 10px; top: 11px; }
+      .map-tools { top: 10px; right: 10px; }
+      .observation-card { right: 10px; bottom: 10px; width: calc(100% - 20px); padding: 11px; }
+      .observation-name { font-size: 14px; }
+      .map-scale { left: 11px; bottom: 12px; }
+      .demo-caption { font-size: 10px; }
+      .logo-strip { padding: 21px 0; }
+      .org { font-size: 10px; }
+      .org-mark { width: 12px; height: 12px; }
+      .capabilities, .testimonial-section, .pricing-section { padding: 73px 0; }
+      .capability-card { padding: 23px; }
+      .offline-section { padding: 70px 0; }
+      .sync-board { padding: 24px 16px 19px; }
+      .sync-board-title { padding-bottom: 21px; }
+      .sync-line { grid-template-columns: 64px 1fr 64px; gap: 8px; }
+      .sync-line::before { right: 60px; left: 60px; }
+      .node-icon { width: 46px; height: 46px; border-radius: 13px; }
+      .sync-node strong { font-size: 9px; }
+      .sync-node span { font-size: 8px; }
+      .sync-arrow { height: 28px; }
+      .sync-list { margin-top: 25px; padding: 12px 10px; }
+      .sync-item { font-size: 9px; }
+      .quote-card { padding: 32px 23px; }
+      blockquote { font-size: 26px; }
+      .pricing-grid { grid-template-columns: 1fr; }
+      .price-card { padding: 26px 23px; }
+      .price-card.team { order: -1; }
+      .footer-inner { align-items: flex-start; flex-direction: column; gap: 17px; }
+      .footer-links { flex-wrap: wrap; gap: 10px 17px; }
+    }
+  </style>
+</head>
+<body>
+  <a class="skip-link" href="#main-content">Skip to content</a>
+  <header class="container site-nav" id="top">
+    <a class="brand" href="#top" aria-label="Silt home">
+      <svg class="brand-mark" viewBox="0 0 32 32" aria-hidden="true">
+        <path fill="#294a36" d="M16 2.7c5.8 0 10.5 4.7 10.5 10.5 0 7.6-8.4 13.1-10.5 16.1C13.9 26.3 5.5 20.8 5.5 13.2 5.5 7.4 10.2 2.7 16 2.7Z"/>
+        <path fill="#f2d08f" d="M11.1 12.4c1.2-3.1 3.2-5.1 5.2-6.2 3.1 1.3 4.5 3.8 4.5 6.8 0 2.9-2 5.4-4.5 7.8-2.4-2.4-4.4-5.1-5.2-8.4Z"/>
+        <path fill="#d86f52" d="M10.3 15.2c2.1.6 3.9 1.7 5.7 3.7-1.3 1.6-2.6 2.9-3.5 4.2-1.5-2-2.4-4.5-2.2-7.9Z"/>
+      </svg>
+      <span>Silt</span>
+    </a>
+    <nav class="nav-links" aria-label="Main navigation">
+      <a href="#capabilities">Capabilities</a>
+      <a href="#offline">How it works</a>
+      <a href="#pricing">Pricing</a>
+    </nav>
+    <div class="nav-right">
+      <a class="nav-login" href="#pricing">Sign in</a>
+      <a class="button button-dark nav-cta" href="#pricing">Start free</a>
+      <button class="menu-toggle" type="button" aria-label="Open navigation" aria-expanded="false" aria-controls="main-nav-mobile">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
+      </button>
+    </div>
+  </header>
+
+  <main id="main-content">
+    <section class="hero">
+      <div class="container hero-layout">
+        <div class="hero-copy">
+          <div class="eyebrow"><span class="eyebrow-dot"></span> Fieldwork, uninterrupted</div>
+          <h1>Notes for the places <em>maps forget.</em></h1>
+          <p class="body-large">Silt is the offline-first research notebook for teams who follow the trail beyond the signal. Capture observations, photos, and precise locations now. Sync the whole story later.</p>
+          <div class="hero-actions">
+            <a class="button button-dark" href="#pricing">Start free <span aria-hidden="true">→</span></a>
+            <a class="button button-light" href="#offline">See how it works <span aria-hidden="true">↗</span></a>
+          </div>
+          <p class="hero-note">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M12 3v18M3 12h18"/><path d="m5 5 14 14M19 5 5 19" opacity=".28"/></svg>
+            No credit card. Works offline from day one.
+          </p>
+          <div class="hero-trust">
+            <div class="faces" aria-hidden="true"><span class="face">MK</span><span class="face">AR</span><span class="face">LS</span><span class="face">+8</span></div>
+            <p class="trust-text"><strong>Loved by field teams</strong>in 14 countries and counting</p>
+          </div>
+        </div>
+
+        <div class="demo-wrap" aria-label="Silt product demonstration">
+          <div class="product-shell">
+            <div class="window-bar">
+              <div class="window-brand"><span class="window-brand-dot"></span> Lake Tana survey</div>
+              <div style="display:flex; align-items:center;">
+                <button class="window-status" id="sync-status" type="button" aria-label="Sync status: offline mode"><span></span><span id="sync-status-text">Offline mode</span></button>
+                <span class="window-dots" aria-hidden="true"><i></i><i></i><i></i></span>
+              </div>
+            </div>
+            <div class="app-grid">
+              <aside class="records" aria-label="Recent field records">
+                <div class="records-head"><span>Field notes</span><button class="add-record" type="button" aria-label="Add field note">+</button></div>
+                <div class="search-box"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="10.8" cy="10.8" r="6.5"/><path d="m16 16 5 5"/></svg><span>Search notes</span></div>
+                <div class="record selected"><div class="record-title">Montane frog sighting</div><div class="record-meta"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><circle cx="12" cy="12" r="8"/><path d="M12 8v4l3 2"/></svg>Today, 06:42</div></div>
+                <div class="record"><div class="record-title">Water sample · W-04</div><div class="record-meta"><span class="record-tag">sample</span> Yesterday</div></div>
+                <div class="record"><div class="record-title">Canopy cover transect</div><div class="record-meta"><span class="record-tag">transect</span> May 18</div></div>
+                <div class="record"><div class="record-title">Bird call · marsh edge</div><div class="record-meta"><span class="record-tag">audio</span> May 17</div></div>
+                <div class="record"><div class="record-title">Invasive reed patch</div><div class="record-meta"><span class="record-tag">plant</span> May 16</div></div>
+              </aside>
+              <div class="map-panel">
+                <span class="map-label">Bahir Dar · Ethiopia</span>
+                <div class="map-tools" aria-hidden="true">
+                  <span class="map-tool"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 3v18M3 12h18"/></svg></span>
+                  <span class="map-tool"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 6h16M4 12h16M4 18h16"/></svg></span>
+                </div>
+                <svg class="map-drawing" viewBox="0 0 620 430" preserveAspectRatio="none" role="img" aria-label="Topographic field map with three observation points">
+                  <defs>
+                    <pattern id="grid" width="38" height="38" patternUnits="userSpaceOnUse"><path d="M38 0H0V38" fill="none" stroke="#c7d9be" stroke-width=".8" opacity=".55"/></pattern>
+                    <linearGradient id="terrain" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#cfdfc6"/><stop offset=".55" stop-color="#e8edda"/><stop offset="1" stop-color="#d1dfc9"/></linearGradient>
+                  </defs>
+                  <rect width="620" height="430" fill="url(#terrain)"/>
+                  <rect width="620" height="430" fill="url(#grid)"/>
+                  <path d="M-20 320c75-55 109-42 158-89 56-54 49-119 119-136 60-14 70 62 140 49 75-14 93-85 165-96 37-5 55 18 80 31" fill="none" stroke="#a6c5a0" stroke-width="39" opacity=".43"/>
+                  <path d="M-20 320c75-55 109-42 158-89 56-54 49-119 119-136 60-14 70 62 140 49 75-14 93-85 165-96 37-5 55 18 80 31" fill="none" stroke="#87b18c" stroke-width="1.7" opacity=".8"/>
+                  <path d="M-30 334c81-51 113-42 161-87 57-53 56-114 124-130 64-14 71 63 144 49 72-13 89-85 162-98 35-6 60 17 80 28" fill="none" stroke="#96ba92" stroke-width="1.6" opacity=".74"/>
+                  <path d="M-45 353c87-49 128-41 175-83 56-50 62-109 130-124 64-14 73 63 147 47 69-15 87-82 162-98 35-7 61 12 78 24" fill="none" stroke="#a0c19a" stroke-width="1.3" opacity=".67"/>
+                  <path d="M85-10c72 65 70 111 115 140 53 35 115 1 141 60 25 57-45 84-18 145 24 54 99 68 132 113" fill="none" stroke="#f6f8ea" stroke-width="18" opacity=".75"/>
+                  <path d="M85-10c72 65 70 111 115 140 53 35 115 1 141 60 25 57-45 84-18 145 24 54 99 68 132 113" fill="none" stroke="#b4d3bb" stroke-width="4" opacity=".72"/>
+                  <path d="M82 67c45 26 77 32 104 3M379 86c49 25 81 24 129-7M427 318c45-23 87-16 133 12M30 206c45-17 66-8 93 10" fill="none" stroke="#b2c9a6" stroke-width="2" stroke-dasharray="3 5" opacity=".65"/>
+                  <text x="430" y="181" fill="#769279" font-size="10" font-family="sans-serif" letter-spacing="1.5" opacity=".7">YIRGA FOREST</text>
+                  <text x="103" y="372" fill="#769279" font-size="9" font-family="sans-serif" letter-spacing="1.2" opacity=".7">NORTH SHORE TRAIL</text>
+                </svg>
+                <span class="map-pin pin-one" aria-label="Observation point one"></span><span class="map-pin pin-two" aria-label="Observation point two"></span><span class="map-pin pin-three" aria-label="Observation point three"></span>
+                <div class="map-scale"><span class="scale-line"></span>500 m</div>
+                <article class="observation-card">
+                  <div class="observation-top"><span class="observation-label">New observation</span><span class="observation-check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><path d="m5 12 4 4L19 6"/></svg>Saved locally</span></div>
+                  <div class="observation-name">Montane frog sighting</div>
+                  <div class="observation-details"><span class="detail-pill"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M12 21s7-6.1 7-11a7 7 0 0 0-14 0c0 4.9 7 11 7 11Z"/><circle cx="12" cy="10" r="2.3"/></svg>11.241° N</span><span class="detail-pill"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M4 18V6m16 12V6M4 8h16M4 16h16"/></svg>2 photos</span></div>
+                  <div class="observation-footer"><span>06:42 · M. Kassa</span><span>Ready to sync</span></div>
+                </article>
+              </div>
+            </div>
+          </div>
+          <p class="demo-caption"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M12 3a9 9 0 1 0 9 9"/><path d="M12 7v5l3 2"/></svg> This note was captured 42 km from the nearest signal.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="logo-strip" aria-label="Teams using Silt">
+      <div class="container logo-strip-inner">
+        <p>Built for teams doing careful work</p>
+        <div class="orgs" aria-label="Partner organizations">
+          <span class="org"><i class="org-mark"></i>FieldKind</span><span class="org"><i class="org-mark"></i>Northstar Lab</span><span class="org"><i class="org-mark"></i>Canopy Trust</span>
+        </div>
+      </div>
+    </section>
+
+    <section class="capabilities" id="capabilities">
+      <div class="container">
+        <div class="section-intro">
+          <div><div class="eyebrow"><span class="eyebrow-dot"></span> Everything in the field</div><h2 style="margin-top:18px; max-width:500px;">Your notebook grew up.</h2></div>
+          <p class="body-large">The simple, dependable tools fieldwork asks for — without the clutter that gets in the way.</p>
+        </div>
+        <div class="capability-grid">
+          <article class="capability-card"><div class="capability-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><path d="m4 18 5-5 3 3 4-5 4 4"/><rect x="3" y="4" width="18" height="16" rx="2"/><circle cx="8" cy="9" r="1.3"/></svg></div><h3>Capture the whole picture</h3><p>Rich notes, photos, audio, samples, and GPS coordinates — all connected to one observation.</p></article>
+          <article class="capability-card"><div class="capability-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><path d="M4 5.5A2.5 2.5 0 0 1 6.5 3H20v16H6.5A2.5 2.5 0 0 0 4 21V5.5Z"/><path d="M4 5v16M8 7h8M8 11h7"/></svg></div><h3>Make protocols feel human</h3><p>Turn your study design into guided forms that keep every team member collecting consistent data.</p></article>
+          <article class="capability-card"><div class="capability-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><path d="M5 12a7 7 0 0 1 12-4.9L19 9"/><path d="M19 5v4h-4M19 12a7 7 0 0 1-12 4.9L5 15"/><path d="M5 19v-4h4"/></svg></div><h3>Come back with certainty</h3><p>Every edit is versioned and safely queued. Know what synced, what changed, and who changed it.</p></article>
+        </div>
+      </div>
+    </section>
+
+    <section class="offline-section" id="offline">
+      <div class="container offline-layout">
+        <div>
+          <div class="eyebrow"><span class="eyebrow-dot"></span> Offline by design</div>
+          <h2>Signal is a detail. Your work shouldn’t be.</h2>
+          <p class="body-large">Silt stores your work on the device first, so a dead battery, a long flight, or a valley without reception never means a lost observation.</p>
+          <a class="offline-link" href="#pricing">See the field guide <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M5 12h13M13 6l6 6-6 6"/></svg></a>
+        </div>
+        <div class="sync-board" aria-label="How Silt syncs offline work">
+          <div class="sync-board-title"><span>One observation, every device</span><span class="secure-pill"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><rect x="5" y="10" width="14" height="11" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg>Encrypted in transit</span></div>
+          <div class="sync-line">
+            <div class="sync-node"><div class="node-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><rect x="6" y="3" width="12" height="18" rx="2"/><path d="M9 6h6M10 18h4"/></svg></div><strong>In the field</strong><span>Save locally</span></div>
+            <div class="sync-arrow" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M5 12h14M13 6l6 6-6 6"/></svg></div>
+            <div class="sync-node"><div class="node-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M7.5 18.5h9a4 4 0 0 0 .7-7.94A5.5 5.5 0 0 0 6.6 9.1 3.8 3.8 0 0 0 7.5 18.5Z"/><path d="M12 11v6M9.5 13.5 12 11l2.5 2.5"/></svg></div><strong>Back online</strong><span>Sync safely</span></div>
+          </div>
+          <div class="sync-list"><div class="sync-item">GPS and timestamps preserved exactly</div><div class="sync-item">Conflicts surfaced, never silently overwritten</div><div class="sync-item">Team sees the full field history</div></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="testimonial-section">
+      <div class="container">
+        <div class="quote-card">
+          <div><span class="quote-mark" aria-hidden="true">“</span><div class="quote-person"><span class="person-avatar">AN</span><div><div class="person-name">Dr. Amina Ndlovu</div><div class="person-role">Conservation ecologist, Kafue Basin Project</div></div></div></div>
+          <blockquote>“Silt gave our team a shared memory. We stop worrying about the signal and pay attention to what the forest is telling us.”</blockquote>
+        </div>
+      </div>
+    </section>
+
+    <section class="pricing-section" id="pricing">
+      <div class="container">
+        <div class="pricing-heading"><div><div class="eyebrow"><span class="eyebrow-dot"></span> Simple pricing</div><h2 style="margin-top:18px;">Bring your whole field notebook.</h2></div><p class="body-large">Start small, then give the rest of your team a place to work together.</p></div>
+        <div class="pricing-grid">
+          <article class="price-card"><div class="price-label">Individual</div><div class="price-amount"><strong>$0</strong><span>forever</span></div><p class="price-description">For independent researchers and getting your first study moving.</p><a class="button button-dark" href="#final-cta">Start free</a><div class="price-features"><div class="price-feature"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="m5 12 4 4L19 6"/></svg>Unlimited observations</div><div class="price-feature"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="m5 12 4 4L19 6"/></svg>Offline capture on 1 device</div><div class="price-feature"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="m5 12 4 4L19 6"/></svg>Export to CSV and GeoJSON</div></div></article>
+          <article class="price-card team"><span class="popular">Most loved</span><div class="price-label">Team</div><div class="price-amount"><strong>$12</strong><span>per person / month</span></div><p class="price-description">For teams who need a calm, trusted source of field truth.</p><a class="button" href="#final-cta">Start a team</a><div class="price-features"><div class="price-feature"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="m5 12 4 4L19 6"/></svg>Everything in Individual</div><div class="price-feature"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="m5 12 4 4L19 6"/></svg>Shared protocols and projects</div><div class="price-feature"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="m5 12 4 4L19 6"/></svg>Roles, review, and audit history</div></div></article>
+        </div>
+        <p class="billing-note">Student, nonprofit, and multi-year research discounts available. <a href="#final-cta" style="text-decoration:underline; text-underline-offset:3px;">Talk to us</a>.</p>
+      </div>
+    </section>
+
+    <section class="final-cta" id="final-cta">
+      <div class="container final-cta-inner">
+        <div class="eyebrow"><span class="eyebrow-dot"></span> Go further</div>
+        <h2>Good fieldwork deserves a safe landing.</h2>
+        <p class="body-large">Your next observation is already out there. Bring Silt along.</p>
+        <a class="button button-dark" href="#top">Start free <span aria-hidden="true">→</span></a>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <div class="container footer-inner">
+      <a class="brand" href="#top" aria-label="Silt home"><svg class="brand-mark" viewBox="0 0 32 32" aria-hidden="true"><path fill="#294a36" d="M16 2.7c5.8 0 10.5 4.7 10.5 10.5 0 7.6-8.4 13.1-10.5 16.1C13.9 26.3 5.5 20.8 5.5 13.2 5.5 7.4 10.2 2.7 16 2.7Z"/><path fill="#f2d08f" d="M11.1 12.4c1.2-3.1 3.2-5.1 5.2-6.2 3.1 1.3 4.5 3.8 4.5 6.8 0 2.9-2 5.4-4.5 7.8-2.4-2.4-4.4-5.1-5.2-8.4Z"/><path fill="#d86f52" d="M10.3 15.2c2.1.6 3.9 1.7 5.7 3.7-1.3 1.6-2.6 2.9-3.5 4.2-1.5-2-2.4-4.5-2.2-7.9Z"/></svg><span>Silt</span></a>
+      <div class="footer-links"><a href="#capabilities">Capabilities</a><a href="#offline">How it works</a><a href="#pricing">Pricing</a><a href="#final-cta">Contact</a><a href="#top">Privacy</a></div>
+      <span class="copyright">© 2025 Silt Research, Inc.</span>
+    </div>
+  </footer>
+
+  <div class="toast" id="toast" role="status" aria-live="polite"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true"><path d="m5 12 4 4L19 6"/></svg><span>Observation safely queued for sync.</span></div>
+  <script>
+    (function () {
+      var nav = document.querySelector('.site-nav');
+      var menu = document.querySelector('.menu-toggle');
+      if (menu) {
+        menu.addEventListener('click', function () {
+          var open = nav.classList.toggle('nav-mobile-open');
+          menu.setAttribute('aria-expanded', String(open));
+          menu.setAttribute('aria-label', open ? 'Close navigation' : 'Open navigation');
+        });
+      }
+      var status = document.getElementById('sync-status');
+      var statusText = document.getElementById('sync-status-text');
+      var toast = document.getElementById('toast');
+      if (status && statusText && toast) {
+        status.addEventListener('click', function () {
+          var online = status.classList.toggle('online');
+          statusText.textContent = online ? 'Sync ready' : 'Offline mode';
+          status.setAttribute('aria-label', online ? 'Sync status: ready to sync' : 'Sync status: offline mode');
+          status.style.background = online ? '#e2f0df' : '';
+          status.style.color = online ? '#527454' : '';
+          status.firstElementChild.style.background = online ? '#6b9f68' : '';
+          toast.querySelector('span').textContent = online ? 'Back online — 4 observations ready to sync.' : 'Observation safely queued for sync.';
+          toast.classList.add('show');
+          window.setTimeout(function () { toast.classList.remove('show'); }, 2600);
+        });
+      }
+    }());
+  </script>
+</body>
+</html>

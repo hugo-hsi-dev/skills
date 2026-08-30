@@ -1,0 +1,4 @@
+interface:
+  display_name: "Failure Ownership"
+  short_description: "Calibrate errors, guards, fallbacks, and retries"
+  default_prompt: "Use $failure-ownership to match defensive code to this project’s existing failure boundaries and invariants."
