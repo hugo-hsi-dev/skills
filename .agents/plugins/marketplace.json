@@ -5,34 +5,10 @@
   },
   "plugins": [
     {
-      "name": "failure-ownership",
+      "name": "hugo-hsi-skills",
       "source": {
         "source": "local",
-        "path": "./plugins/failure-ownership"
-      },
-      "policy": {
-        "installation": "AVAILABLE",
-        "authentication": "ON_INSTALL"
-      },
-      "category": "Productivity"
-    },
-    {
-      "name": "report-drift",
-      "source": {
-        "source": "local",
-        "path": "./plugins/report-drift"
-      },
-      "policy": {
-        "installation": "AVAILABLE",
-        "authentication": "ON_INSTALL"
-      },
-      "category": "Productivity"
-    },
-    {
-      "name": "frontend-design",
-      "source": {
-        "source": "local",
-        "path": "./plugins/frontend-design"
+        "path": "./"
       },
       "policy": {
         "installation": "AVAILABLE",

@@ -1,17 +1,15 @@
 # Hugo Hsi Skills
 
-Three focused agent skills, packaged for skills.sh and as installable plugins for both Claude Code
-and Codex:
+Three focused agent skills for skills.sh, Claude Code, and Codex:
 
-| Plugin | Purpose |
+| Skill | Purpose |
 | --- | --- |
 | `failure-ownership` | Match defensive code to the layer that owns the failure policy. |
 | `report-drift` | Verify conflicting repository claims and offer a deduplicated follow-up. |
 | `frontend-design` | Establish and execute a context-aware visual direction for web frontends. |
 
-The top-level skill directories are the canonical sources. skills.sh-ready copies live under
-`skills/`, marketplace-ready copies live under `plugins/`, and both are kept in sync by
-`scripts/sync_marketplace_plugins.py`.
+Each skill lives once, under `skills/`. That directory is the canonical source used by every
+supported installer.
 
 ## skills.sh
 
@@ -19,7 +17,7 @@ List or install the skills with the open Agent Skills CLI:
 
 ```bash
 npx skills add hugo-hsi-dev/skills --list
-npx skills add hugo-hsi-dev/skills@frontend-design
+npx skills add hugo-hsi-dev/skills --skill frontend-design
 ```
 
 Replace `frontend-design` with `failure-ownership` or `report-drift` as needed. For a local checkout,
@@ -39,28 +37,23 @@ use `/plugin marketplace add .` from the repository root.
 
 ## Codex
 
-Add the same marketplace and install any plugin:
+Add the same marketplace and install the bundled plugin:
 
 ```bash
 codex plugin marketplace add hugo-hsi-dev/skills
-codex plugin add frontend-design@hugo-hsi-skills
+codex plugin add hugo-hsi-skills@hugo-hsi-skills
 ```
 
 For a local checkout, use `codex plugin marketplace add .` from the repository root.
 
 ## Development
 
-After editing a top-level skill, refresh its packaged copy:
+Edit skills directly under `skills/`. There are no generated copies to refresh. To check what
+skills.sh discovers from a local checkout, run:
 
 ```bash
-python3 scripts/sync_marketplace_plugins.py
+npx skills add . --list
 ```
 
-Verify that committed plugin copies match their sources:
-
-```bash
-python3 scripts/sync_marketplace_plugins.py --check
-```
-
-Before publishing a release, bump the plugin version in both the Claude and Codex plugin manifests.
-The sync check also verifies that those versions agree.
+Version Codex plugin releases in `.codex-plugin/plugin.json`. The top-level version in
+`.claude-plugin/marketplace.json` versions the Claude marketplace independently.
