@@ -1,0 +1,4 @@
+interface:
+  display_name: "Frontend Design"
+  short_description: "Design distinctive, context-aware frontend interfaces"
+  default_prompt: "Use $frontend-design to establish and execute a context-aware visual direction for this frontend."

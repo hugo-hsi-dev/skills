@@ -1,0 +1,26 @@
+{
+  "name": "failure-ownership",
+  "version": "0.1.0",
+  "description": "Match defensive code to the layer that owns the failure policy.",
+  "author": {
+    "name": "Hugo Hsi",
+    "email": "hugohsidev@gmail.com",
+    "url": "https://github.com/hugo-hsi-dev"
+  },
+  "homepage": "https://github.com/hugo-hsi-dev/skills",
+  "repository": "https://github.com/hugo-hsi-dev/skills",
+  "keywords": ["errors", "defensive-code", "reliability", "code-review"],
+  "skills": "./skills/",
+  "interface": {
+    "displayName": "Failure Ownership",
+    "shortDescription": "Put failure policy at the right layer",
+    "longDescription": "Review errors, guards, fallbacks, retries, cleanup, and defensive branches against the codebase's existing ownership boundaries and invariants.",
+    "developerName": "Hugo Hsi",
+    "category": "Productivity",
+    "capabilities": ["Read", "Write"],
+    "websiteURL": "https://github.com/hugo-hsi-dev/skills",
+    "defaultPrompt": [
+      "Review this defensive code with $failure-ownership."
+    ]
+  }
+}

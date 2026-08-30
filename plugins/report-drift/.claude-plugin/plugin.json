@@ -1,0 +1,10 @@
+{
+  "name": "report-drift",
+  "version": "0.1.0",
+  "description": "Verify conflicting repository claims and offer a deduplicated follow-up.",
+  "author": {
+    "name": "Hugo Hsi"
+  },
+  "homepage": "https://github.com/hugo-hsi-dev/skills",
+  "repository": "https://github.com/hugo-hsi-dev/skills"
+}

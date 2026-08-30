@@ -1,0 +1,40 @@
+{
+  "$schema": "https://json.schemastore.org/claude-code-marketplace.json",
+  "name": "hugo-hsi-skills",
+  "version": "0.1.0",
+  "description": "Focused engineering and frontend design skills by Hugo Hsi.",
+  "owner": {
+    "name": "Hugo Hsi",
+    "email": "hugohsidev@gmail.com",
+    "url": "https://github.com/hugo-hsi-dev"
+  },
+  "plugins": [
+    {
+      "name": "failure-ownership",
+      "description": "Match defensive code to the layer that owns the failure policy.",
+      "author": {
+        "name": "Hugo Hsi"
+      },
+      "source": "./plugins/failure-ownership",
+      "category": "development"
+    },
+    {
+      "name": "report-drift",
+      "description": "Verify conflicting repository claims and offer a deduplicated follow-up.",
+      "author": {
+        "name": "Hugo Hsi"
+      },
+      "source": "./plugins/report-drift",
+      "category": "development"
+    },
+    {
+      "name": "frontend-design",
+      "description": "Design distinctive, context-aware web frontend experiences.",
+      "author": {
+        "name": "Hugo Hsi"
+      },
+      "source": "./plugins/frontend-design",
+      "category": "development"
+    }
+  ]
+}

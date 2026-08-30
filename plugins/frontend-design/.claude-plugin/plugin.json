@@ -1,0 +1,10 @@
+{
+  "name": "frontend-design",
+  "version": "0.1.0",
+  "description": "Design distinctive, context-aware web frontend experiences.",
+  "author": {
+    "name": "Hugo Hsi"
+  },
+  "homepage": "https://github.com/hugo-hsi-dev/skills",
+  "repository": "https://github.com/hugo-hsi-dev/skills"
+}

@@ -1,0 +1,21 @@
+{
+  "$schema": "https://skills.sh/schemas/skills.sh.schema.json",
+  "notGrouped": "bottom",
+  "groupings": [
+    {
+      "title": "Engineering",
+      "description": "Skills for reasoning about failure policy and repository consistency.",
+      "skills": [
+        "failure-ownership",
+        "report-drift"
+      ]
+    },
+    {
+      "title": "Design",
+      "description": "Skills for creating distinctive, context-aware frontend experiences.",
+      "skills": [
+        "frontend-design"
+      ]
+    }
+  ]
+}
