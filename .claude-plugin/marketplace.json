@@ -15,7 +15,11 @@
       "author": {
         "name": "Hugo Hsi"
       },
-      "source": "./plugins/failure-ownership",
+      "source": "./",
+      "strict": false,
+      "skills": [
+        "./skills/failure-ownership"
+      ],
       "category": "development"
     },
     {
@@ -24,7 +28,11 @@
       "author": {
         "name": "Hugo Hsi"
       },
-      "source": "./plugins/report-drift",
+      "source": "./",
+      "strict": false,
+      "skills": [
+        "./skills/report-drift"
+      ],
       "category": "development"
     },
     {
@@ -33,7 +41,11 @@
       "author": {
         "name": "Hugo Hsi"
       },
-      "source": "./plugins/frontend-design",
+      "source": "./",
+      "strict": false,
+      "skills": [
+        "./skills/frontend-design"
+      ],
       "category": "development"
     }
   ]

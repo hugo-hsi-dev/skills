@@ -1,0 +1,38 @@
+{
+  "name": "hugo-hsi-skills",
+  "version": "0.1.0",
+  "description": "Focused engineering and frontend design skills by Hugo Hsi.",
+  "author": {
+    "name": "Hugo Hsi",
+    "email": "hugohsidev@gmail.com",
+    "url": "https://github.com/hugo-hsi-dev"
+  },
+  "homepage": "https://github.com/hugo-hsi-dev/skills",
+  "repository": "https://github.com/hugo-hsi-dev/skills",
+  "keywords": [
+    "code-review",
+    "documentation",
+    "frontend",
+    "reliability",
+    "web-design"
+  ],
+  "skills": "./skills/",
+  "interface": {
+    "displayName": "Hugo Hsi Skills",
+    "shortDescription": "Engineering and frontend design workflows",
+    "longDescription": "Review failure ownership, investigate conflicting repository claims, and design distinctive web frontend experiences with a focused collection of agent skills.",
+    "developerName": "Hugo Hsi",
+    "category": "Productivity",
+    "capabilities": [
+      "Interactive",
+      "Read",
+      "Write"
+    ],
+    "websiteURL": "https://github.com/hugo-hsi-dev/skills",
+    "defaultPrompt": [
+      "Review this defensive code with $failure-ownership.",
+      "Use $report-drift to verify these conflicting claims.",
+      "Use $frontend-design to design this web experience."
+    ]
+  }
+}
