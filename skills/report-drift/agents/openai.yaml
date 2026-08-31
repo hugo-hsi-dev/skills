@@ -1,4 +1,4 @@
 interface:
   display_name: "Report Drift"
-  short_description: "Capture confirmed repository drift in GitHub"
-  default_prompt: "Use $report-drift to verify this drift finding and offer a deduplicated GitHub issue."
+  short_description: "Investigate drift and prepare an approved follow-up"
+  default_prompt: "Use $report-drift to verify this drift finding and prepare an approved follow-up."

@@ -1,6 +1,6 @@
 ---
 name: frontend-design
-description: Use before creating, redesigning, or auditing the visual experience of a web frontend, especially for a new page or screen, a significant layout or style change, responsive composition, or interaction and motion design. Skip when a behavior-only change leaves the existing presentation intact.
+description: Use when a web-frontend task materially establishes, changes, or audits visual or interaction output, especially a new page or screen, significant layout or style change, responsive composition, or motion design. For a targeted visual fix, apply it only to the affected surface and states; skip behavior-only work that leaves presentation intact.
 ---
 
 # Frontend Design
@@ -11,7 +11,7 @@ Design from the brief, not from frontend defaults. Preserve the project's framew
 
 Before changing the interface, read the room. Infer the design from the evidence instead of reaching for a familiar aesthetic.
 
-Read these signals together:
+For substantive visual work, read these signals together. For a targeted change, inspect the signals that can affect the changed surface or its contracts:
 
 1. **Surface:** marketing page, portfolio, editorial page, commerce, application shell, dashboard, workflow, or redesign.
 2. **Job:** the primary action the interface must make easy and the information that earns that action.
@@ -22,17 +22,17 @@ Read these signals together:
 7. **Constraints:** accessibility, regulation, localization, content volume, device context, performance, and available assets.
 8. **Change mode:** greenfield, preserve-and-modernize, or visual overhaul.
 
-If two plausible readings would lead to materially different designs, ask one focused question. Otherwise proceed.
+If two plausible readings would lead to materially different designs, ask one focused question only when the missing fact cannot be safely inferred or discovered from the brief, repository, or available preview and would materially affect the outcome. Otherwise state the assumption briefly and proceed.
 
-Before implementation, state a one-line **Design Read**:
+For greenfield work, a visual overhaul, or another substantive multi-surface change, state a one-line **Design Read** before implementation:
 
 > Reading this as a [surface] for [audience], using a [visual language] to make [primary job] feel [intended quality].
 
-The read is complete when it explains the page kind, audience, visual language, and product goal without naming a framework or library.
+The read is complete when it explains the page kind, audience, visual language, and product goal without naming a framework or library. For a targeted change, keep this read internal or state only the affected goal when it helps align a consequential choice.
 
-## Set the three dials
+## Set the three dials for substantive visual work
 
-Set and briefly justify three values from 1 to 10. They are decisions, not user-facing controls.
+For substantive visual work, set and briefly justify three values from 1 to 10. They are decisions, not user-facing controls. For a targeted change, the dials are optional and may remain internal; set only the values that guide the affected surface and do not add numeric ceremony when the existing system already answers the question.
 
 - **`DESIGN_VARIANCE`:** 1 is strict repetition and symmetry; 10 is expressive asymmetry and compositional surprise.
 - **`MOTION_INTENSITY`:** 1 is nearly static; 10 is highly choreographed or scroll-orchestrated.
@@ -57,13 +57,13 @@ Let the dials govern the whole interface:
 - Higher **`MOTION_INTENSITY`** increases choreography only when motion communicates hierarchy, feedback, causality, or narrative.
 - Higher **`VISUAL_DENSITY`** increases visible information and shortens travel while preserving grouping and scan order.
 - On small screens, reduce spatial variance before sacrificing hierarchy or legibility.
-- Keep all values numeric and within 1-10. For redesigns, first estimate the current values, then clamp any adjustment to that range.
+- When dials are set, keep all values numeric and within 1-10. For redesigns that use them, first estimate the current values, then clamp any adjustment to that range.
 
-The dials are complete when another designer could predict the interface's composition, movement, and information load from them.
+When used, the dials are complete when another designer could predict the interface's composition, movement, and information load from them.
 
-## Establish a visual thesis
+## Establish a visual thesis when the scope warrants one
 
-Choose one coherent idea that can direct the page. Define it through:
+For greenfield work, a visual overhaul, or a multi-surface change, choose one coherent idea that can direct the page. Define it through:
 
 - **Type:** the roles of display, body, labels, and data text.
 - **Palette:** dominant neutrals, accent strategy, and contrast character.
@@ -74,9 +74,9 @@ Choose one coherent idea that can direct the page. Define it through:
 
 A thesis such as "quiet technical precision through compact type, cool neutrals, sharp geometry, and state-driven motion" is useful. A label such as "modern" is not.
 
-Every prominent choice should reinforce the thesis. Variation should create rhythm inside the system, not introduce a second system.
+Every prominent choice within scope should reinforce the thesis. For a targeted change, align with the existing thesis or define only the local principle needed to make the change coherent. Variation should create rhythm inside the system, not introduce a second system.
 
-Before implementation, communicate the direction compactly: evidence and assumptions, the **Design Read**, the three numeric dials and their consequences, and the visual thesis. Keep this short enough that it supports the work instead of delaying it.
+Before implementation, communicate the direction compactly for substantive visual work: evidence and assumptions, the **Design Read**, the three numeric dials and their consequences, and the visual thesis. For a targeted change, communicate only the reasoning needed to make consequential visual decisions. Keep the preflight short enough that it supports the work instead of delaying it.
 
 ## Direct the design
 
@@ -116,10 +116,10 @@ Before implementation, communicate the direction compactly: evidence and assumpt
 ### Imagery and graphic language
 
 - Use imagery that advances the story: product evidence, context, process, people, place, or atmosphere.
-- Prefer supplied brand assets and real product captures. When new imagery is needed and the task permits it, generate or source assets for the intended crop and placement.
+- Prefer supplied brand assets and real product captures. When new imagery is needed, first check existing assets and project tooling; generate or source it only when the task authorizes that work and the result can be used with suitable licensing and usage rights. If material is sourced externally, preserve its provenance and usage terms with the change.
 - Present real interface evidence or a working embedded preview when showing a product. Decorative rectangles that imitate screenshots erode trust.
 - Text-led composition is valid when the thesis supports it. Do not use it accidentally as a substitute for missing visual direction; if imagery is essential but unavailable, define the required asset and placement explicitly.
-- For every visual, define meaningful alternative text, an empty alternative for decorative assets, and a caption only when it adds context. Confirm provenance and usage rights for sourced material.
+- For each non-decorative visual added or changed, define meaningful alternative text; use an empty alternative for decorative assets and a caption only when it adds context. Confirm provenance and usage rights for any externally sourced material.
 
 ### Icons
 
@@ -143,8 +143,8 @@ Before implementation, communicate the direction compactly: evidence and assumpt
 - Write in one voice. Prefer concrete claims and functional labels over generic hype or faux-poetic metadata.
 - Do not fabricate metrics, testimonials, customers, technical precision, or scarcity. Clearly label sample data when mock content is necessary.
 - Keep labels consistent for the same action and context. Use different labels only when the content, audience, or resulting action genuinely differs.
-- Design the full interaction cycle: default, hover where relevant, focus, active, disabled, loading, empty, success, and error.
-- Give fields persistent, programmatically associated labels; keep errors contextual and make recovery obvious.
+- For each interactive surface added or changed, design the relevant interaction cycle: default, hover where relevant, focus, active, disabled, loading, empty, success, and error as applicable to the product and affected layout. Do not invent unsupported product behavior merely to satisfy a checklist.
+- For each field added or changed, provide a persistent, programmatically associated label; keep errors contextual and make recovery obvious.
 
 ### Responsive behavior
 
@@ -156,9 +156,9 @@ Before implementation, communicate the direction compactly: evidence and assumpt
 
 ### Accessibility and performance
 
-- Preserve semantic reading and tab order. Every interactive element needs an accessible name, visible focus, and a target suited to its input method.
-- Do not rely on color alone for status. Check contrast in every state and over every image, gradient, translucent surface, or overlay.
-- Verify text zoom and reflow, keyboard operation, screen-reader relationships, touch behavior, and reduced-motion behavior for the parts the task changes.
+- Preserve semantic reading and tab order on affected or newly added surfaces. Every interactive element in those surfaces needs an accessible name, visible focus, and a target suited to its input method.
+- For statuses and visual layers affected by the change, do not rely on color alone. Check contrast in every relevant state and over every image, gradient, translucent surface, or overlay.
+- For affected or newly added surfaces, verify text zoom and reflow, keyboard operation, screen-reader relationships, touch behavior, and reduced-motion behavior as applicable to the change.
 - Reserve media dimensions, keep initial visual assets appropriately sized, and avoid loading fonts or imagery that do not earn their cost.
 - Watch for layout shift, long main-thread work, expensive visual effects, and animation stutter in the rendered result.
 
@@ -197,7 +197,7 @@ Classify the change before editing:
 - **Visual overhaul:** establish a new thesis while preserving content and behavior that the user did not ask to change.
 - **Greenfield:** derive the system directly from the brief.
 
-For a redesign, first audit:
+For a redesign, first audit the affected routes and surfaces, expanding the audit only where the change could disturb a shared contract:
 
 - brand tokens and signature visual cues;
 - information architecture, routes, navigation, and conversion paths;
@@ -224,20 +224,20 @@ An audit is complete when every finding is tied to an observable issue, ordered 
 
 ## Visual QA
 
-For implementation tasks, inspect the rendered result, not only the source. Check at a representative narrow mobile width, a tablet or small laptop width, and a wide desktop width. Exercise interaction and content states that materially change layout. If no browser or preview is available, perform the strongest static checks possible, state the missing visual-QA coverage, and do not claim rendered verification.
+For implementation tasks, inspect the rendered result, not only the source, at viewports and states proportionate to the affected surface and regression risk. Responsive, structural, or multi-surface work normally warrants a representative narrow mobile width, an intermediate tablet or small-laptop width, and a wide desktop width. A targeted change may need only the affected breakpoint(s), one nearby boundary likely to regress, and the relevant interaction or content states. Exercise states that materially change layout or behavior. If no browser or preview is available, perform the strongest static checks possible, state the missing visual-QA coverage, and do not claim rendered verification.
 
-For implementation tasks, revise until all of these are true:
+For implementation tasks, revise until all applicable checks for the affected surfaces and states are true:
 
-- The result has an identifiable visual thesis grounded in the brief.
-- The three dials describe what was actually built.
-- Hierarchy, reading order, and primary actions are obvious at each viewport.
-- Typography, palette, shape, imagery, and motion form one system.
-- Repeated sections have purposeful rhythm rather than template repetition.
-- Text, controls, focus states, forms, and overlays meet accessibility needs.
-- Motion is motivated, performant, and reduced-motion safe.
-- Mobile behavior is composed explicitly, with no clipping, accidental overflow, or fragile viewport sizing.
-- Interactive surfaces cover relevant loading, empty, error, success, disabled, focus, and active states.
-- Visible copy is coherent, truthful, and free of fabricated specificity.
+- The result has an identifiable visual thesis grounded in the brief, or the targeted change coherently extends the existing one.
+- The three dials describe what was actually built when they were used.
+- Hierarchy, reading order, and primary actions are obvious at each checked viewport.
+- Changed typography, palette, shape, imagery, and motion form one system with the surrounding surface.
+- Repeated sections affected by the change have purposeful rhythm rather than template repetition.
+- Text, controls, focus states, forms, and overlays affected by the change meet accessibility needs.
+- Motion introduced or changed is motivated, performant, and reduced-motion safe.
+- Where responsive behavior is in scope, mobile behavior is composed explicitly, with no clipping, accidental overflow, or fragile viewport sizing.
+- Affected interactive surfaces cover relevant loading, empty, error, success, disabled, focus, and active states.
+- Visible copy changed by the work is coherent, truthful, and free of fabricated specificity.
 - The implementation respects the existing stack and the scope of the request.
 
-For an implementation handoff, summarize the implemented direction, relevant viewport and state checks, changed files, and unresolved limitations. For an audit handoff, summarize prioritized findings, evidence, recommended corrections, and verification limitations. If a branded or expressive surface still feels generic, return to the Design Read and strengthen the most distinctive brief-supported idea. If a task-focused surface is intentionally familiar, verify that the restraint improves usability rather than reflecting an unexamined default.
+For an implementation handoff, summarize the implemented direction, relevant viewport and state checks, changed files, and unresolved limitations. For an audit handoff, summarize prioritized findings, evidence, recommended corrections, and verification limitations. Use a bounded refinement loop: tie each subjective adjustment to a named issue, recheck the affected viewport or state, and stop when no concrete issue remains or a focused pass produces no improvement. If a branded or expressive surface still feels generic, return once to the Design Read and strengthen the most distinctive brief-supported idea. If a task-focused surface is intentionally familiar, verify that the restraint improves usability rather than reflecting an unexamined default; do not continue polishing toward subjective perfection without a concrete defect or user request.
