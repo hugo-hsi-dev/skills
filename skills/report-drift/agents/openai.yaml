@@ -1,4 +1,4 @@
 interface:
   display_name: "Report Drift"
-  short_description: "Investigate drift and prepare an approved follow-up"
-  default_prompt: "Use $report-drift to verify this drift finding and prepare an approved follow-up."
+  short_description: "Verify suspected drift and prepare a conditional follow-up"
+  default_prompt: "Use $report-drift to verify suspected drift and, if confirmed, present the exact supported follow-up proposal for explicit approval."

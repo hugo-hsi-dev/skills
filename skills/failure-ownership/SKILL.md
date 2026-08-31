@@ -1,105 +1,61 @@
 ---
 name: failure-ownership
-description: Use when a task materially changes failure behavior or audits a material failure path involving error handling, recovery, propagation, retry, cleanup, or defensive branches.
+description: Use when a task adds, changes, or audits a material failure path, including error handling, recovery, propagation, retry, cleanup, null/default/fallback, partial-success, or defensive branches.
 ---
 
 # Failure Ownership
 
-Place failure policy at the layer that can act meaningfully. Every new defensive branch needs four answers:
+Set `OPERATION`: `implement` = authorized add/change/fix; inspect, edit, verify. `audit` = review only; do not edit. Apply this workflow to every material branch—one changing a result, contract, integrity, resource lifetime, observability, or retry. If none exists, no failure-policy work is needed.
 
-- **Condition:** Which evidenced state or failure triggers it?
-- **Owner:** Why does this layer decide what happens next?
-- **Action:** How does the branch restore, translate, degrade, retry, clean up, or expose the contract?
-- **Evidence:** Which repository fact, external contract, reproduced failure, or explicit task requirement supports that choice?
+## 1. Inspect the failure path
 
-Explicit task requirements may intentionally change an established failure contract within their authorized scope. When evidence is still incomplete, follow any higher-priority instruction; otherwise preserve the established propagation path or invariant instead of inventing policy locally.
+Before changing or judging a branch, answer these questions from the repository:
 
-## Trace the existing path
+- What exact runtime state and inputs trigger it?
+- What does the code do now, and where does the failure go next?
+- Which layer owns the decision, and which existing mechanism expresses its policy?
+- Which test, type, configuration, contract, or task requirement defines the expected behavior?
 
-Before editing, inspect enough surrounding code to explain the current failure route:
+Trace the caller → callee → failure-site path. Locate where untrusted, external, persisted, or untyped data becomes internal state; how failure travels (exception, rejected task, error result, callback/event, status, or exit); and the request, route, component, job, transaction, service, process, logging, or retry boundary that receives it. Check whether event handlers and detached/background work escape the apparent boundary.
 
-1. Read the relevant caller and callee, analogous code, focused tests, and declared types or contracts.
-2. Locate the trust boundary where untyped, external, user-controlled, persisted, or otherwise untrusted data becomes internal state.
-3. Determine how this runtime or API reports failure: exception, rejected task, error result, callback, event, status, process exit, or another mechanism.
-4. Find existing request, route, component, job, transaction, service, or process boundaries, plus centralized logging and retry policy.
+Inspect the caller, callee, analogous paths, focused tests, declared types/contracts, configuration, and task requirements as applicable. Research is complete when the trigger, current route, trust boundary, signal, owner, and expected behavior are supported by evidence. If evidence does not establish one of them, treat it as unknown rather than inventing policy.
 
-The trace is complete when you can state where the failure currently goes and name the nearest established owner. Verify the boundary's actual scope; a nearby boundary may not cover event handlers, detached work, sibling scopes, or background execution.
+## 2. Classify and assign ownership
 
-## Classify the condition
+Apply the first matching row. Cleanup is additive after acquisition.
 
-Classify from repository evidence before selecting a mechanism.
+| Order | Condition | Owner/action |
+|---:|---|---|
+| 1 | Cancellation, interruption, redirect, abort, or native control flow | Preserve identity/propagation; established owner decides. |
+| 2 | Expected domain outcome | Use the domain owner's existing contract. |
+| 3 | Untrusted boundary input | Validate once at the boundary; return its documented failure. |
+| 4 | Explicitly optional side effect | Preserve primary result; degrade observably. |
+| 5 | Known transient dependency failure | Retry only at the time-budget/idempotency owner; read [branch mechanics](references/failure-mechanics.md). |
+| 6 | Proven impossible state | Use exhaustiveness or approved assertion; never synthesize a value. |
+| 7 | Broad invariant violation or unexpected bug | Repair producer when in scope; otherwise propagate or assert at the established owner. |
 
-| Condition | Usual direction |
+**Guard rule:** end each guard in exactly one of: continue under a proven invariant; documented boundary/domain failure; primary-preserving optional failure; or propagation. Never map unknown/invariant failure to success, default, or fallback, or hide cancellation. Handle locally only for an owned policy: documented result, cause-preserving translation, authorized compensation, local rendering, observable optional degradation, or retry. Otherwise propagate. Done when each branch has one row, owner, action, and guard outcome.
+
+## 3. Resolve authority
+
+Proceed only when trace evidence names this layer as owner, or explicit task authorization names this owner and scope; a mechanism-only request does not assign ownership. The action must remain in scope. Otherwise preserve the existing path. Authorization never waives trust, security, transaction, integrity, cancellation, or retry gates.
+
+Changes to authority, scope, public results/configuration, infrastructure, observability, or compatibility require authorization from the governing task or project contract. Until that authority exists, preserve the established behavior. How the agent obtains or communicates authorization is outside this skill.
+
+Load [branch mechanics](references/failure-mechanics.md) for null/default/fallback/partial-success, error identity/observability/async, retry, or cleanup. Authority is resolved when the owner and permitted scope are evidenced; otherwise the branch remains unchanged.
+
+## 4. Verify with a matrix
+
+Fill every applicable row with exactly `PASS`, `FAIL`, or `NOT RUN`, plus evidence/reason:
+
+| Check | Result and evidence/reason |
 |---|---|
-| Expected domain outcome | Represent it through the project's existing result, option, status, or error value contract. |
-| Untrusted boundary input | Validate once at the boundary and return the contractually appropriate failure. |
-| Unexpected bug or invariant violation | Fix the producer when in scope; otherwise assert, throw, reject, or propagate to the established owner. |
-| Known transient dependency failure | Let the layer owning time budget and idempotency apply the existing bounded retry policy. |
-| Explicitly optional side effect | Preserve the primary result and make the supported degradation observable. |
-| Cancellation or runtime control flow | Preserve its native identity and propagation semantics when the runtime exposes them. |
-| Cleanup obligation | Use the language or framework's structured cleanup mechanism while preserving the primary outcome. |
-| Proven impossible internal state | Rely on the invariant, exhaustiveness, or a project-approved assertion instead of adding fallback behavior. |
+| Expected outcomes use the documented contract | PASS / FAIL / NOT RUN — [...] |
+| Unexpected and impossible failures reach the intended owner | PASS / FAIL / NOT RUN — [...] |
+| Translation retains cause/context when supported | PASS / FAIL / NOT RUN — [...] |
+| Retry passes transience, repeat-safety, reconciliation, authority, and finite bounds | PASS / FAIL / NOT RUN — [...] |
+| Cleanup preserves primary and secondary outcomes | PASS / FAIL / NOT RUN — [...] |
+| Optional degradation is observable and truthful | PASS / FAIL / NOT RUN — [...] |
+| Existing validation, security, transaction, timeout, and integrity protections remain | PASS / FAIL / NOT RUN — [...] |
 
-Treat merely conceivable conditions as hypotheses. They become implementation cases only when the available evidence gives this code responsibility for them.
-
-## Assign the owner
-
-Handle locally when the current layer can perform an owned policy action that a higher boundary cannot perform correctly:
-
-- recover to a valid, documented result;
-- translate at an abstraction boundary while preserving the original cause when the language or runtime supports it;
-- compensate or roll back in-scope state it owns when the contract authorizes that action;
-- render or return an expected local failure state;
-- apply an established best-effort degradation for optional work;
-- retry with knowledge of transience, idempotency, and any applicable cancellation or deadline controls;
-- release resources through structured cleanup.
-
-Otherwise, let the failure reach the established framework, request, job, service, or process boundary. Preventing a crash is not by itself recovery: a rejected operation, non-zero exit, error response, framework fallback, or failed job can be the correct and most observable contract.
-
-Keep a handler or guard scoped to the operation whose condition it understands. Unknown failures remain visible to the next owner.
-
-Unless an explicit task requirement or higher-priority instruction changes a broader contract, the owned action reuses existing project mechanisms and changes only the current contract. New infrastructure, public result shapes, configuration, dashboards, alerts, or future compatibility paths need explicit task evidence rather than being inferred from a local failure branch.
-
-## Calibrate null and default branches
-
-A null, undefined, missing-value, optional-chain, or default branch changes semantics just as a catch does.
-
-- At a trust boundary, validate external values into a known internal shape.
-- For documented optional data, follow the project's existing option, result, sentinel, or absence convention.
-- After validation, trust required fields and non-null internal types. Keep downstream code direct under that invariant.
-- When required internal data can be absent, repair the producer or expose the invariant violation at its owner rather than distributing fallback checks through consumers.
-- Use a default only when absence is itself a valid domain value. Keep required absence distinguishable from success.
-- Use exhaustiveness or an assertion for impossible variants when it improves diagnosis; avoid a synthetic value that lets execution continue in an invalid state.
-
-## Preserve failure information
-
-- Translation retains the original cause, stack, stable code, and useful metadata through the language's native mechanism when those facilities exist; otherwise preserve the available failure context without inventing unsupported fields.
-- Cancellation, interruption, redirect, abort, and similar control-flow signals retain their identity when the runtime exposes it; otherwise preserve their available native behavior.
-- Observability belongs at the boundary that owns reporting. Add context once; repeated log-and-rethrow layers create noise without adding policy.
-- Async work stays attached to an owning lifetime so both immediate and deferred failures are observed. Detach only through an established background-work mechanism that owns completion and reporting.
-- Degradation observability uses an existing mechanism that preserves the primary contract. Its claim matches its signal: a surfaced-failure counter does not prove eventual delivery or detect silent downstream loss.
-- Public errors expose safe, stable information while internal diagnostics retain actionable detail.
-- Partial success is an explicit domain contract. Follow the documented atomicity for aggregate work; when parts are independent or optional, report their individual failures without making the primary result appear more successful than it is.
-- A fallback produces a truthful supported state, never apparent success fabricated from an unknown failure.
-
-## Bound retries and cleanup
-
-A retry belongs to one deliberate layer. Add it only for a known transient condition and an idempotent operation or explicit reconciliation contract. Use a finite attempt bound; honor a total deadline and cancellation when the existing runtime or client supports those controls, and follow the project's backoff policy. If a provider or runtime does not expose a deadline or cancellation hook, preserve its established contract and use the strongest compatible bound rather than inventing an incompatible interface. Prefer an existing client or framework policy over a nested local retry loop. Take attempt counts and delays from an explicit task requirement, existing project policy, or provider/SDK contract; preserve or expose existing configuration when those values are unspecified instead of inventing them. Retry exhaustion follows the existing failure contract and preserves the available cause or failure context. Deterministic validation, authorization, invariant, and cancellation outcomes flow directly to their owner.
-
-Use structured cleanup such as disposal, defer, `finally`, context management, or RAII according to the project. Cleanup alone does not require consuming the primary failure; if cleanup also fails, preserve both outcomes using the language's established mechanism.
-
-## Verify and stop
-
-Review every added catch, error conversion, null guard, default, fallback, retry, assertion, wrapper, and partial-success branch. Each must have a condition, owner, action, and evidence.
-
-Test the selected policy, not generic crash avoidance. As applicable, prove that:
-
-- expected outcomes use their documented contract;
-- unexpected failures reach the intended boundary;
-- translated errors retain their cause when the language or runtime supports cause chaining;
-- retry stops within its budget and respects cancellation;
-- cleanup runs without hiding the primary failure;
-- optional degradation stays observable and leaves the primary result truthful;
-- established security, validation, transaction, timeout, and integrity protections remain intact.
-
-For one-shot work, once the requested behavior and direct verification pass, stop. A task that explicitly requests monitoring, follow-up, persistence, or continued work may continue according to that request. Explore additional hypothetical failure paths only when they can materially change safety, security, data integrity, or an explicit contract.
+Review every changed catch, conversion, guard, default, fallback, retry, assertion, wrapper, or partial-success branch. In `implement`, correct every `FAIL`; code work is complete when no applicable row is `FAIL`. In `audit`, leave code unchanged. `NOT RUN` means unverified and never becomes `PASS` without evidence. Verification is complete when every applicable row has a truthful status and evidence or reason.
