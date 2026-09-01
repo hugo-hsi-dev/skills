@@ -4,9 +4,10 @@
   "groupings": [
     {
       "title": "Engineering",
-      "description": "Skills for reasoning about failure policy.",
+      "description": "Skills for reasoning about failure policy and repository consistency.",
       "skills": [
-        "failure-ownership"
+        "failure-ownership",
+        "fix-drift"
       ]
     },
     {

@@ -23,15 +23,15 @@
       "category": "development"
     },
     {
-      "name": "report-drift",
-      "description": "Verify conflicting repository claims and offer a deduplicated follow-up.",
+      "name": "fix-drift",
+      "description": "Report material repository drift and fix it only when authority and scope are clear.",
       "author": {
         "name": "Hugo Hsi"
       },
       "source": "./",
       "strict": false,
       "skills": [
-        "./skills/report-drift"
+        "./skills/fix-drift"
       ],
       "category": "development"
     },
