@@ -31,7 +31,7 @@
     "websiteURL": "https://github.com/hugo-hsi-dev/skills",
     "defaultPrompt": [
       "Review this defensive code with $failure-ownership.",
-      "Use $report-drift to verify these conflicting claims.",
+      "Use $fix-drift to verify these conflicting claims.",
       "Use $frontend-design to design this web experience."
     ]
   }

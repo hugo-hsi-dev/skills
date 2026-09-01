@@ -1,4 +1,0 @@
-interface:
-  display_name: "Report Drift"
-  short_description: "Report drift; fix with clear authority and scope"
-  default_prompt: "Use $report-drift when current work uncovers material repository drift; report it first, and reconcile only when the current task authorizes the change and the governing authority is clear."

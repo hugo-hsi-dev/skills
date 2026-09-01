@@ -3,7 +3,7 @@ name: fix-drift
 description: "Use when current repository work exposes a concrete, material conflict between two stable project sources, or a stable source and repeatable observed behavior, that could mislead implementation, operation, or maintenance."
 ---
 
-# Report Drift
+# Fix Drift
 
 Drift is conflicting repository evidence, not a general cleanup opportunity. Start only from a concrete mismatch encountered during current work; keep the primary task moving unless the mismatch blocks a safe decision.
 

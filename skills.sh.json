@@ -7,7 +7,7 @@
       "description": "Skills for reasoning about failure policy and repository consistency.",
       "skills": [
         "failure-ownership",
-        "report-drift"
+        "fix-drift"
       ]
     },
     {
