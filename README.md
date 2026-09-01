@@ -1,11 +1,10 @@
 # Hugo Hsi Skills
 
-Three focused agent skills for skills.sh, Claude Code, and Codex:
+Two focused agent skills for skills.sh, Claude Code, and Codex:
 
 | Skill | Purpose |
 | --- | --- |
 | `failure-ownership` | Match defensive code to the layer that owns the failure policy. |
-| `report-drift` | Verify conflicting repository claims and offer a deduplicated follow-up. |
 | `frontend-design` | Establish and execute a context-aware visual direction for web frontends. |
 
 Each skill lives once, under `skills/`. That directory is the canonical source used by every
@@ -20,7 +19,7 @@ npx skills add hugo-hsi-dev/skills --list
 npx skills add hugo-hsi-dev/skills --skill frontend-design
 ```
 
-Replace `frontend-design` with `failure-ownership` or `report-drift` as needed. For a local checkout,
+Replace `frontend-design` with `failure-ownership` as needed. For a local checkout,
 use `npx skills add . --list` from the repository root.
 
 ## Claude Code
@@ -32,7 +31,7 @@ Add the marketplace from GitHub, then install any plugin:
 /plugin install frontend-design@hugo-hsi-skills
 ```
 
-Replace `frontend-design` with `failure-ownership` or `report-drift` as needed. For a local checkout,
+Replace `frontend-design` with `failure-ownership` as needed. For a local checkout,
 use `/plugin marketplace add .` from the repository root.
 
 ## Codex
