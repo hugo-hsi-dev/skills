@@ -247,7 +247,8 @@ function grokbotSetup(flags) {
   const bridge = readBridge(need(flags, "slug"));
   requireOwner(bridge, need(flags, "as"));
   const [replyPrompt] = textBlocks("grokbot-reply-routine-prompt.md");
-  const [memoryNote] = textBlocks("grokbot-memory-note.md");
+  const [relayNote, directNote] = textBlocks("grokbot-memory-note.md");
+  const memoryNote = bridge.mode === "direct" ? directNote : relayNote;
   if (!replyPrompt || !memoryNote) fail("a ```text block is missing from the references");
   const fill = filler(bridge);
   const out = [

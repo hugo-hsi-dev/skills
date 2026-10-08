@@ -19,7 +19,7 @@ Each Project gets its own folder instead of a shared registry file:
 - **Claiming a Project is atomic.** `bridge.mjs claim` creates the folder with one `mkdir`, which fails if the folder already exists. Two bots can't claim the same Project at once.
 - **No lost writes.** Each bot writes only its own folders. Writes to `project.json` go through a temporary file and a rename.
 
-There's no message log. The Project's main thread tracks its own work, and every message the bot sends carries its own context.
+There's no message log. The Project's main thread tracks its own work and keeps its context.
 
 ## Project slug
 

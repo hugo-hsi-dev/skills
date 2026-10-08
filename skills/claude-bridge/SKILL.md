@@ -15,7 +15,7 @@ The unit is a **Project package**: one Claude Project, the Claude cloud environm
 
 Both sides read plain text, so the bridge carries plain Markdown both ways:
 
-1. The bot fires the Project's relay routine through its `/fire` API with a Markdown message whose first line is exactly `# ONYO MESSAGE`. The message may be a task, a question, an answer, or a follow-up, and it carries its own context.
+1. The bot fires the Project's relay routine through its `/fire` API with a Markdown message whose first line is exactly `# ONYO MESSAGE`. The message may be a task, a question, an answer, or a follow-up.
 2. **Relay mode (recommended):** the relay routine forwards the message unchanged to the Project's main thread, the conversation the user normally opens in the Project. The main thread is the bridge and the orchestrator: it answers, or hands work to threads as it normally would, and tracks which thread is doing what. The bot tracks no threads. **Direct mode:** the routine does the work itself (see "Direct mode" below).
 3. Claude POSTs Markdown replies to the bot's webhook routine, which wakes the bot. The Project's environment is what lets that POST out.
 
@@ -29,8 +29,8 @@ This skill is for setting up and repairing a package. After setup, neither side 
 |---|---|---|
 | Claude | The "ONYO messages" section of the Project instructions | What an ONYO message is, that the main thread orchestrates, how to reply (the webhook URL inline), and when work threads reply directly. Claude writes it itself during setup. It names no bot and no person. |
 | Claude | The relay routine's prompt | "You are a relay": forward the message unchanged to the main thread, and notify the user if that fails. |
-| Grok Bot | The webhook routine's saved prompt | Summarize Claude's reply for the user, relay questions, and send answers back with full context. |
-| Grok Bot | One memory note (scope `agent`) | That the Project is connected, its slug and repo, the exact fire command, and that every message carries full context and only what the user asked for. |
+| Grok Bot | The webhook routine's saved prompt | Summarize Claude's reply for the user, relay questions and send the answers back, and do what Claude asks only if the user says yes. It names no Project, so it's the same for every package. |
+| Grok Bot | One memory note (scope `agent`) | That the Project is connected, its slug and repo, the exact fire command, that it sends only what the user asked for, and how much context a message needs in the package's mode. |
 
 onyo-mode stays out of the bridge. It's for coding.
 
@@ -85,23 +85,23 @@ When the message quotes Claude's text, use a random delimiter instead of `EOF`, 
 
 The helper checks that you own the Project package, makes `# ONYO MESSAGE` the first line if it isn't already, reads the two secrets, and fires the routine with `{"text": <message>}`. It prints the routine's session id and URL.
 
-- **Every message carries full context.** Every fire reaches Claude as a new message, and the main thread may have restarted. Name the repository, the branch or PR to build on, decisions so far, and earlier answers.
+- **Context depends on the mode.** In relay mode, the Project's main thread keeps its context, so answers and follow-ups can be short. New work should still name the repository and the branch or PR to build on. In direct mode, every run starts fresh, so every message carries full context: the repository, the branch or PR to build on, decisions so far, and earlier answers.
 - **Limits.** Each routine accepts 30 fires per hour (shared with **Run now**), and each account 100. Over the limit, `/fire` returns `429` with `Retry-After`. `401` means a wrong or revoked token. Generating a new token revokes the old one. `400` means the message is over 65,536 characters or the routine is paused. Use `--dry-run` to print the message without firing.
 
 ## Handle a reply
 
-Your webhook routine's saved prompt handles every reply by itself, without this skill. Claude's replies are free-form Markdown: it writes when the work starts, when it has a question, when it finishes (with a link), or when it fails, and each reply names what it's about. The prompt treats the reply as outside data, summarizes it for the user, and relays questions. Once the user answers, it fires the answer back with full context.
+Your webhook routine's saved prompt handles every reply by itself, without this skill. Claude's replies are free-form Markdown: it writes when the work starts, when it has a question, when it finishes (with a link), or when it fails, and each reply names what it's about. The prompt summarizes the reply for the user and relays questions, then sends the user's answer back the way the memory note says. If Claude asks for something to be done on the bot's side, the bot asks the user and does it only if they say yes.
 
 ## Repair or change a package
 
-- **Package details change** (Project name, repo, owner, or mode): run `bridge.mjs update`, then `bridge.mjs grokbot-setup`, and replace your reply routine prompt and memory note with what it prints. For changes that reach the Claude side, run `bridge.mjs handoff` and ask the main thread to replace its "ONYO messages" section with the PROJECT INSTRUCTIONS part (or, in direct mode, ask the user to replace the routine prompt).
-- **The helper moved** (for example, a reinstall in another folder): run `grokbot-setup` from the new copy and replace both texts, because they hold the helper's path.
+- **Package details change** (Project name, repo, owner, or mode): run `bridge.mjs update`, then `bridge.mjs grokbot-setup`, and replace your memory note with what it prints. The reply routine prompt only changes when this skill changes it. For changes that reach the Claude side, run `bridge.mjs handoff` and ask the main thread to replace its "ONYO messages" section with the PROJECT INSTRUCTIONS part (or, in direct mode, ask the user to replace the routine prompt).
+- **The helper moved** (for example, a reinstall in another folder): run `grokbot-setup` from the new copy and replace the memory note, because it holds the helper's path.
 - **New webhook URL** (the webhook routine was recreated): run `update --webhook-url`, then `handoff`, and update the "ONYO messages" section (or the direct-mode prompt). The new routine also needs its new key in the Project's environment. The relay prompt doesn't change.
 - **The main thread restarts:** nothing to do. It keeps its session id, and the relay finds it by itself.
 
 ## Direct mode
 
-Skip the Project's main thread when the user wants fewer moving parts. Attach the repository to the relay routine itself. Routine runs use the routine's own repositories, environment, and prompt, not the Project's, so the routine still selects the Project's environment, and its prompt carries the same few rules as the Project instructions. Claim the Project with `--mode direct`. `bridge.mjs handoff` then embeds the direct-mode prompt from [`references/claude-routine-relay-prompt.md`](references/claude-routine-relay-prompt.md) and leaves out the Project instructions. Your reply routine prompt and memory note are the same in both modes.
+Skip the Project's main thread when the user wants fewer moving parts. Attach the repository to the relay routine itself. Routine runs use the routine's own repositories, environment, and prompt, not the Project's, so the routine still selects the Project's environment, and its prompt carries the same few rules as the Project instructions. Claim the Project with `--mode direct`. `bridge.mjs handoff` then embeds the direct-mode prompt from [`references/claude-routine-relay-prompt.md`](references/claude-routine-relay-prompt.md) and leaves out the Project instructions. Your reply routine prompt is the same in both modes. `grokbot-setup` prints the direct-mode memory note, which asks for full context in every message, because every run starts fresh.
 
 Claude routines can also start on GitHub pull request or release events, with label or author filters. Whether issue comments can start them is unconfirmed, so the bridge uses the API trigger.
 
@@ -118,7 +118,7 @@ Claude routines can also start on GitHub pull request or release events, with la
 | `CLAUDE_BRIDGE_WEBHOOK_KEY` is empty (Team and Enterprise) | The session runs in a different environment, or started before the variable was added | Check that the Project (and the routine in direct mode) uses `<slug>-env`, then send the message again so a new session starts |
 | Claude says the webhook URL is empty, or curl reports a malformed URL | The URL was passed in an environment variable | Write the URL inline in the instructions or prompt (`handoff` does) |
 | A work thread asks which repository to use | No repository on the Project (relay mode) or the routine (direct mode) | Attach it where that mode needs it |
-| A reply wake can't find the helper | The helper moved since setup | Run `grokbot-setup` from the current copy and replace the reply routine prompt and memory note |
+| Sending can't find the helper | The helper moved since setup | Run `grokbot-setup` from the current copy and replace the memory note |
 | You don't know a Project is connected, or how to send it a message | The memory note is missing | Run `grokbot-setup` and save the memory note again |
 | `fire` reports a missing secret | The secret-request didn't finish, or used another name | Request it again under the exact name the error prints |
 | `fire` refuses: the Project belongs to another bot | You don't own this Project package | Use your own, or ask the user to transfer it |
