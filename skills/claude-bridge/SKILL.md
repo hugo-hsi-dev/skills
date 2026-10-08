@@ -11,12 +11,12 @@ description: >-
 
 # Claude bridge
 
-The unit is a **Project package**: one Claude Project, the Claude cloud environment that belongs to it, and the bridge into it. Everything is named from the Project's slug and recorded in one registry entry per Project: the environment, the relay routine, the repository, the mode, and the owning Grok Bot.
+The unit is a **Project package**: one Claude Project, the Claude cloud environment that belongs to it, and the bridge into it. Everything is named from the Project's slug and recorded in one registry entry per Project: the environment, the relay routine, the repository, and the owning Grok Bot.
 
 Both sides read plain text, so the bridge carries plain Markdown both ways:
 
 1. The bot fires the Project's relay routine through its `/fire` API with a Markdown message whose first line is exactly `# ONYO MESSAGE`. The message may be a task, a question, an answer, or a follow-up.
-2. **Relay mode (recommended):** the relay routine forwards the message unchanged to the Project's main thread, the conversation the user normally opens in the Project. The main thread is the bridge and the orchestrator: it answers, or hands work to threads as it normally would, and tracks which thread is doing what. The bot tracks no threads. **Direct mode:** the routine does the work itself (see "Direct mode" below).
+2. The relay routine forwards the message unchanged to the Project's main thread, the conversation the user normally opens in the Project. The main thread is the bridge and the orchestrator: it answers, or hands work to threads as it normally would, and tracks which thread is doing what. The bot tracks no threads.
 3. Claude POSTs Markdown replies to the bot's webhook routine, which wakes the bot. The Project's environment is what lets that POST out.
 
 The `/fire` response holds only the routine's session id and URL. Every answer comes back through the webhook.
@@ -28,9 +28,9 @@ This skill is for setting up and repairing a package. After setup, neither side 
 | Side | Home | What it holds |
 |---|---|---|
 | Claude | The "ONYO messages" section of the Project instructions | What an ONYO message is, that the main thread orchestrates, how to reply (the webhook URL inline), and when work threads reply directly. Claude writes it itself during setup. It names no bot and no person. |
-| Claude | The relay routine's prompt | "You are a relay": forward the message unchanged to the main thread, and notify the user if that fails. |
+| Claude | The relay routine's prompt | "You are a relay": forward the message unchanged to the main thread, and notify the user if that fails. The main thread creates the routine itself during setup. |
 | Grok Bot | The webhook routine's saved prompt | Summarize Claude's reply for the user, carry on with next steps that are part of what the user asked for, and take anything new (open questions, unrequested work) to the user first. It names no Project, so it's the same for every package. |
-| Grok Bot | One memory note (scope `agent`) | That the Project is connected, its slug and repo, the exact fire command, that it sends only what the user asked for, and how much context a message needs in the package's mode. |
+| Grok Bot | One memory note (scope `agent`) | That the Project is connected, its slug and repo, the exact fire command, that it sends only what the user asked for, and that the main thread keeps its context. |
 
 onyo-mode stays out of the bridge. It's for coding.
 
@@ -44,9 +44,9 @@ onyo-mode stays out of the bridge. It's for coding.
 
 Setup runs here, on the Grok Bot side. Follow [`references/walkthrough.md`](references/walkthrough.md).
 
-1. Agree on the Project, repo, mode, and Claude plan, and claim the Project slug.
+1. Agree on the Project, repo, and Claude plan, and claim the Project slug.
 2. Set up your side with `bridge.mjs grokbot-setup`: write the printed reply routine prompt into a new webhook routine, and save the printed memory note. Record the routine and its webhook URL.
-3. Run `bridge.mjs handoff`. It prints one self-contained prompt for the user to paste into the Project's main thread ([`references/claude-side-setup.md`](references/claude-side-setup.md)). The main thread writes the "ONYO messages" section of the Project instructions itself and lists the clicks that are left: the Project's environment with its allowlist and webhook key, selecting that environment on the Project and on the relay routine, the relay routine itself, its API trigger, and the token. The prompt has no secrets in it.
+3. Run `bridge.mjs handoff`. It prints one self-contained prompt for the user to paste into the Project's main thread ([`references/claude-side-setup.md`](references/claude-side-setup.md)). The main thread writes the "ONYO messages" section of the Project instructions and creates the relay routine itself, as a Project-owned routine in the Project's environment. The user does the environment clicks (the allowlist, the webhook key, and selecting the environment on the Project) and one routine click: open the relay routine, add an API trigger, and generate its token, copying the fire URL and token straight into your secret prompts. The prompt has no secrets in it, and the Project never generates or shows the token.
 4. Send the two secret-requests, then send a test message.
 
 Manual clicks are the default. The walkthrough ends with an optional section where you offer to drive claude.ai in your browser. Never make it the default.
@@ -54,7 +54,7 @@ Manual clicks are the default. The walkthrough ends with an optional section whe
 The texts setup installs:
 
 - [`references/claude-project-instructions.md`](references/claude-project-instructions.md): the "ONYO messages" section of the Project instructions.
-- [`references/claude-routine-relay-prompt.md`](references/claude-routine-relay-prompt.md): the relay prompt, and the direct-mode prompt.
+- [`references/claude-routine-relay-prompt.md`](references/claude-routine-relay-prompt.md): the relay prompt.
 - [`references/grokbot-reply-routine-prompt.md`](references/grokbot-reply-routine-prompt.md): your webhook routine's prompt.
 - [`references/grokbot-memory-note.md`](references/grokbot-memory-note.md): your memory note.
 
@@ -66,7 +66,7 @@ The environment belongs to the Project and holds its reply settings: the network
 - **Network access:** **Custom**, with `api2.cursor.sh` in **Allowed domains** and **Also include default list of common package managers** checked. Without the allowlist, a POST fails with `403` and `x-deny-reason: host_not_allowed`.
 - **The webhook key** is a network secret: type **Bearer**, allowed website `api2.cursor.sh`, the key alone as the value. Claude's proxy attaches it after the request leaves the session, so no session can read it, and the Claude-side texts tell Claude not to set the header. The **Network secrets** section only appears when you edit an environment that already exists, so create the environment first.
 - **Team and Enterprise plans** don't have network secrets yet. The alternative is an environment variable, `CLAUDE_BRIDGE_WEBHOOK_KEY=<key>`, plus one changed sentence in the Claude-side reply paragraph so Claude sends `Authorization: Bearer $CLAUDE_BRIDGE_WEBHOOK_KEY` itself. The walkthrough's step 5 has the exact wording. Anyone who uses the environment can read the variable, so keep it personal and never share it with the organization.
-- **Select it in two places.** Project threads run in the environment chosen in **Project settings > Environment**. A routine runs in the environment set on the routine itself (the cloud icon below its instructions), not the Project's.
+- **Select it in two places.** Project threads run in the environment chosen in **Project settings > Environment**. A routine runs in the environment set on the routine itself, not the Project's, so the main thread creates the relay routine in the Project's environment.
 - **Changing the Grok Bot webhook key.** Claude can't edit a network secret, so delete it and add it again with the new key. The old key stops working right away.
 
 What Claude's docs at code.claude.com confirm: network access levels and the Custom allowlist; that network secrets are Pro and Max only, need an existing Anthropic-hosted environment and the organization admin role, and can't be edited; that a network secret's hosts are reachable even when the allowlist leaves them out (the allowlist still matters for the variable alternative); that routines choose their own environment; that Project threads use the Project's environment; that the Project instructions reach every new thread and the Project's main conversation; that a routine's API token is shown only once; and that environment and setting changes reach new threads, not running ones. What the docs don't say: which environment the Project's main conversation itself runs in, or how a routine forwards a message to it. That comes from testing: a routine told to forward to "the project's main thread" finds it by itself, and the main thread keeps its session id across restarts.
@@ -85,7 +85,7 @@ When the message quotes Claude's text, use a random delimiter instead of `EOF`, 
 
 The helper checks that you own the Project package, makes `# ONYO MESSAGE` the first line if it isn't already, reads the two secrets, and fires the routine with `{"text": <message>}`. It prints the routine's session id and URL.
 
-- **Context depends on the mode.** In relay mode, the Project's main thread keeps its context, so answers and follow-ups can be short. New work should still name the repository and the branch or PR to build on. In direct mode, every run starts fresh, so every message carries full context: the repository, the branch or PR to build on, decisions so far, and earlier answers.
+- **Short messages are enough.** The Project's main thread keeps its context, so answers and follow-ups can be short. New work should still name the repository and the branch or PR to build on.
 - **Limits.** Each routine accepts 30 fires per hour (shared with **Run now**), and each account 100. Over the limit, `/fire` returns `429` with `Retry-After`. `401` means a wrong or revoked token. Generating a new token revokes the old one. `400` means the message is over 65,536 characters or the routine is paused. Use `--dry-run` to print the message without firing.
 
 ## Handle a reply
@@ -94,14 +94,12 @@ Your webhook routine's saved prompt handles every reply by itself, without this 
 
 ## Repair or change a package
 
-- **Package details change** (Project name, repo, owner, or mode): run `bridge.mjs update`, then `bridge.mjs grokbot-setup`, and replace your memory note with what it prints. The reply routine prompt only changes when this skill changes it. For changes that reach the Claude side, run `bridge.mjs handoff` and ask the main thread to replace its "ONYO messages" section with the PROJECT INSTRUCTIONS part (or, in direct mode, ask the user to replace the routine prompt).
+- **Package details change** (Project name, repo, or owner): run `bridge.mjs update`, then `bridge.mjs grokbot-setup`, and replace your memory note with what it prints. The reply routine prompt only changes when this skill changes it. For changes that reach the Claude side, run `bridge.mjs handoff` and ask the main thread to replace its "ONYO messages" section with the PROJECT INSTRUCTIONS part.
 - **The helper moved** (for example, a reinstall in another folder): run `grokbot-setup` from the new copy and replace the memory note, because it holds the helper's path.
-- **New webhook URL** (the webhook routine was recreated): run `update --webhook-url`, then `handoff`, and update the "ONYO messages" section (or the direct-mode prompt). The new routine also needs its new key in the Project's environment. The relay prompt doesn't change.
+- **New webhook URL** (the webhook routine was recreated): run `update --webhook-url`, then `handoff`, and update the "ONYO messages" section. The new routine also needs its new key in the Project's environment. The relay prompt doesn't change.
 - **The main thread restarts:** nothing to do. It keeps its session id, and the relay finds it by itself.
 
-## Direct mode
-
-Skip the Project's main thread when the user wants fewer moving parts. Attach the repository to the relay routine itself. Routine runs use the routine's own repositories, environment, and prompt, not the Project's, so the routine still selects the Project's environment, and its prompt carries the same few rules as the Project instructions. Claim the Project with `--mode direct`. `bridge.mjs handoff` then embeds the direct-mode prompt from [`references/claude-routine-relay-prompt.md`](references/claude-routine-relay-prompt.md) and leaves out the Project instructions. Your reply routine prompt is the same in both modes. `grokbot-setup` prints the direct-mode memory note, which asks for full context in every message, because every run starts fresh.
+## Other triggers
 
 Claude routines can also start on GitHub pull request or release events, with label or author filters. Whether issue comments can start them is unconfirmed, so the bridge uses the API trigger.
 
@@ -109,15 +107,17 @@ Claude routines can also start on GitHub pull request or release events, with la
 
 | Symptom | Likely cause | Fix |
 |---|---|---|
-| The relay run says it couldn't forward the message | The Project's main conversation was deleted or archived, or the routine's claude-code-remote connector is off | Ask the user to check the Project's main conversation and turn the connector on for the routine, then send the message again |
+| The relay run says it couldn't forward the message | The Project's main conversation was deleted or archived, or the routine lost its way to reach it | Ask the user to check the Project's main conversation and ask it to fix the routine, then send the message again |
 | The relay acted on the message itself | The routine runs an older or longer prompt | Replace it with the relay prompt from this skill, which starts "You are a relay." |
 | The main thread treats the message as information | The message lost its `# ONYO MESSAGE` first line, or the Project instructions have no "ONYO messages" section | Check the relay run, put the relay prompt from this skill back, and ask the main thread to add the "ONYO messages" section again (run `handoff` for the text) |
 | No reply arrives, and the main thread says its POST failed | See the next rows for the HTTP status it reports | Fix the environment, then send a test message |
-| POST fails with `403` and `x-deny-reason: host_not_allowed` | The session's environment doesn't allow `api2.cursor.sh`. With a network secret in place, it usually means the session isn't running in the Project's environment at all | Select `<slug>-env` in Project settings > Environment (and on the routine in direct mode), and set it to Custom with `api2.cursor.sh` and the default list |
+| POST fails with `403` and `x-deny-reason: host_not_allowed` | The session's environment doesn't allow `api2.cursor.sh`. With a network secret in place, it usually means the session isn't running in the Project's environment at all | Select `<slug>-env` in Project settings > Environment, and set it to Custom with `api2.cursor.sh` and the default list |
 | `401` from `api2.cursor.sh` | The webhook key is missing or stale: no network secret (or variable) in the session's environment, the wrong host on the secret, or a regenerated Grok Bot key | Delete the secret and add it again with the current key, as Bearer for host `api2.cursor.sh` |
-| `CLAUDE_BRIDGE_WEBHOOK_KEY` is empty (Team and Enterprise) | The session runs in a different environment, or started before the variable was added | Check that the Project (and the routine in direct mode) uses `<slug>-env`, then send the message again so a new session starts |
+| `CLAUDE_BRIDGE_WEBHOOK_KEY` is empty (Team and Enterprise) | The session runs in a different environment, or started before the variable was added | Check that the Project uses `<slug>-env`, then send the message again so a new session starts |
 | Claude says the webhook URL is empty, or curl reports a malformed URL | The URL was passed in an environment variable | Write the URL inline in the instructions or prompt (`handoff` does) |
-| A work thread asks which repository to use | No repository on the Project (relay mode) or the routine (direct mode) | Attach it where that mode needs it |
+| A work thread asks which repository to use | No repository on the Project | Ask the main thread to add it |
+| The user can't find or open the relay routine to add the API trigger | Unverified: where a Project-owned routine shows up for the user, and whether they can open it | Ask the main thread where the routine is and whether it can be opened. If the user can't reach it, setup stops there, so tell the user that plainly |
+| The relay run can't reach the main thread, or runs in the wrong environment | The routine was created without the Project's environment or without what it needs to reach the main thread | Ask the main thread to fix the routine, or delete it and create it again (that needs a new API trigger and token) |
 | Sending can't find the helper | The helper moved since setup | Run `grokbot-setup` from the current copy and replace the memory note |
 | You don't know a Project is connected, or how to send it a message | The memory note is missing | Run `grokbot-setup` and save the memory note again |
 | `fire` reports a missing secret | The secret-request didn't finish, or used another name | Request it again under the exact name the error prints |

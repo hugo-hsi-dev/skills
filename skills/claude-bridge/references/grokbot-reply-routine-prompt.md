@@ -15,6 +15,6 @@ It runs every time Claude POSTs, often with nobody in the chat, so it says only 
 - **No Project details.** Your memory note already says which Project is connected and how to send it a message, so the prompt doesn't repeat it.
 - **Carry on with the asked-for work, and ask about anything new.** This works like an orchestrator reading an agent's report. Next steps inside what the user already asked for keep going without a round trip: reviewing the PR, answering a question the user already settled, or delivering the result. Anything the user didn't ask for, such as messaging people, merging, deleting, spending money, or starting unrelated work, waits for the user's yes.
 - **Summarize.** Claude's replies are plain text written for a person. There's nothing to parse, log, or track.
-- **Short answers are enough.** In relay mode, the answer goes to the Project's main thread, which keeps its context. Your memory note covers how to send it.
+- **Short answers are enough.** The answer goes to the Project's main thread, which keeps its context. Your memory note covers how to send it.
 
 It holds no paths, names, or secrets, so it doesn't change when the helper moves or the package changes.

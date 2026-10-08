@@ -28,15 +28,14 @@ function fail(message) {
 
 // The flags each command accepts. Every flag takes a value except --dry-run.
 const FLAGS = {
-  claim: ["slug", "project", "owner-name", "owner-id", "repo", "webhook-routine", "environment", "relay-routine", "webhook-url", "mode"],
+  claim: ["slug", "project", "owner-name", "owner-id", "repo", "webhook-routine", "environment", "relay-routine", "webhook-url"],
   show: ["slug"],
-  update: ["slug", "as", "repo", "project", "environment", "relay-routine", "webhook-routine", "webhook-url", "mode", "new-owner-name", "new-owner-id"],
+  update: ["slug", "as", "repo", "project", "environment", "relay-routine", "webhook-routine", "webhook-url", "new-owner-name", "new-owner-id"],
   fire: ["slug", "as", "dry-run"],
   handoff: ["slug", "as"],
   "grokbot-setup": ["slug", "as"],
 };
 const BOOLEAN_FLAGS = ["dry-run"];
-const MODES = ["relay", "direct"];
 
 function parseArgs(argv) {
   const [command, ...rest] = argv;
@@ -100,7 +99,6 @@ function claim(flags) {
   const dir = bridgeDir(slug);
   // Check every required flag before the mkdir, so a typo can't leave an empty claimed folder.
   for (const key of ["project", "owner-name", "owner-id", "repo"]) need(flags, key);
-  if (flags.mode !== undefined && !MODES.includes(flags.mode)) fail("--mode must be relay or direct");
   mkdirSync(ROOT, { recursive: true });
   try {
     mkdirSync(dir);
@@ -120,7 +118,6 @@ function claim(flags) {
     owner: { name: need(flags, "owner-name"), agent_id: need(flags, "owner-id") },
     repo: need(flags, "repo"),
     environment: str(flags.environment) || `${slug}-env`,
-    mode: flags.mode || "relay",
     relay_routine: str(flags["relay-routine"]) || `${slug}-relay`,
     webhook_routine: str(flags["webhook-routine"]),
     webhook_url: str(flags["webhook-url"]),
@@ -141,19 +138,18 @@ function show(flags) {
     const file = join(ROOT, name, "project.json");
     if (!existsSync(file)) continue;
     const b = JSON.parse(readFileSync(file, "utf8"));
-    process.stdout.write(`${b.slug}\tproject=${b.claude_project}\towner=${b.owner.name} (${b.owner.agent_id})\tenvironment=${b.environment}\trepo=${b.repo}\tmode=${b.mode}\n`);
+    process.stdout.write(`${b.slug}\tproject=${b.claude_project}\towner=${b.owner.name} (${b.owner.agent_id})\tenvironment=${b.environment}\trepo=${b.repo}\n`);
   }
 }
 
 function update(flags) {
   const bridge = readBridge(need(flags, "slug"));
   requireOwner(bridge, need(flags, "as"));
-  if (flags.mode !== undefined && !MODES.includes(flags.mode)) fail("--mode must be relay or direct");
   if ((flags["new-owner-id"] === undefined) !== (flags["new-owner-name"] === undefined)) fail("--new-owner-id and --new-owner-name go together");
   if (typeof flags["new-owner-id"] === "string") {
     bridge.owner = { name: flags["new-owner-name"], agent_id: flags["new-owner-id"] };
   }
-  const fields = { repo: "repo", project: "claude_project", environment: "environment", "relay-routine": "relay_routine", "webhook-routine": "webhook_routine", "webhook-url": "webhook_url", mode: "mode" };
+  const fields = { repo: "repo", project: "claude_project", environment: "environment", "relay-routine": "relay_routine", "webhook-routine": "webhook_routine", "webhook-url": "webhook_url" };
   for (const [flag, field] of Object.entries(fields)) {
     if (typeof flags[flag] === "string") bridge[field] = flags[flag];
   }
@@ -214,7 +210,6 @@ function filler(bridge) {
     "<AGENT_ID>": bridge.owner.agent_id,
     "<PROJECT_NAME>": bridge.claude_project,
     "<REPO>": bridge.repo,
-    "<MODE>": bridge.mode,
     "<ENVIRONMENT>": bridge.environment,
     "<RELAY_ROUTINE>": bridge.relay_routine,
     "<WEBHOOK_URL>": bridge.webhook_url || "<WEBHOOK_URL>",
@@ -235,11 +230,11 @@ function handoff(flags) {
   if (!bridge.webhook_url) fail("no webhook_url recorded. Run update --webhook-url <url> first.");
   const [template] = textBlocks("claude-side-setup.md");
   const [projectInstructions] = textBlocks("claude-project-instructions.md");
-  const [relayPrompt, directPrompt] = textBlocks("claude-routine-relay-prompt.md");
-  if (!template || !projectInstructions || !relayPrompt || !directPrompt) fail("a ```text block is missing from the references");
+  const [relayPrompt] = textBlocks("claude-routine-relay-prompt.md");
+  if (!template || !projectInstructions || !relayPrompt) fail("a ```text block is missing from the references");
   const prompt = template
-    .replace("{{PROJECT_INSTRUCTIONS}}", () => bridge.mode === "direct" ? "(Not needed in direct mode.)" : projectInstructions)
-    .replace("{{ROUTINE_PROMPT}}", () => bridge.mode === "direct" ? directPrompt : relayPrompt);
+    .replace("{{PROJECT_INSTRUCTIONS}}", () => projectInstructions)
+    .replace("{{ROUTINE_PROMPT}}", () => relayPrompt);
   process.stdout.write(checkFilled(filler(bridge)(prompt)) + "\n");
 }
 
@@ -247,8 +242,7 @@ function grokbotSetup(flags) {
   const bridge = readBridge(need(flags, "slug"));
   requireOwner(bridge, need(flags, "as"));
   const [replyPrompt] = textBlocks("grokbot-reply-routine-prompt.md");
-  const [relayNote, directNote] = textBlocks("grokbot-memory-note.md");
-  const memoryNote = bridge.mode === "direct" ? directNote : relayNote;
+  const [memoryNote] = textBlocks("grokbot-memory-note.md");
   if (!replyPrompt || !memoryNote) fail("a ```text block is missing from the references");
   const fill = filler(bridge);
   const out = [
@@ -264,9 +258,9 @@ function grokbotSetup(flags) {
 }
 
 const USAGE = `usage:
-  bridge.mjs claim  --slug PROJECT_SLUG --project "Project name" --owner-name N --owner-id ID --repo OWNER/REPO [--webhook-routine FOLDER] [--environment NAME (default <slug>-env)] [--relay-routine NAME (default <slug>-relay)] [--webhook-url URL] [--mode relay|direct (default relay)]
+  bridge.mjs claim  --slug PROJECT_SLUG --project "Project name" --owner-name N --owner-id ID --repo OWNER/REPO [--webhook-routine FOLDER] [--environment NAME (default <slug>-env)] [--relay-routine NAME (default <slug>-relay)] [--webhook-url URL]
   bridge.mjs show   [--slug S]
-  bridge.mjs update --slug S --as ID [--repo R] [--project P] [--environment E] [--relay-routine R] [--webhook-routine F] [--webhook-url U] [--mode M] [--new-owner-name N --new-owner-id ID]
+  bridge.mjs update --slug S --as ID [--repo R] [--project P] [--environment E] [--relay-routine R] [--webhook-routine F] [--webhook-url U] [--new-owner-name N --new-owner-id ID]
   bridge.mjs fire   --slug S --as ID [--dry-run] < <Markdown message; "${HEADER}" is added as the first line if it's missing>
   bridge.mjs handoff --slug S --as ID   (prints the complete paste prompt for the Claude Project)
   bridge.mjs grokbot-setup --slug S --as ID   (prints your reply routine prompt and memory note)`;

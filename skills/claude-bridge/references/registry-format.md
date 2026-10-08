@@ -52,7 +52,6 @@ For example, `docs-site` uses `CLAUDE_BRIDGE_DOCS_SITE_FIRE_URL` and `CLAUDE_BRI
   "owner": { "name": "<Grok Bot name>", "agent_id": "<Grok Bot agent id>" },
   "repo": "owner/repo",
   "environment": "docs-site-env",
-  "mode": "relay",
   "relay_routine": "docs-site-relay",
   "webhook_routine": "<folder of the Grok Bot webhook routine>",
   "webhook_url": "<the Grok Bot webhook routine's URL>",
@@ -66,12 +65,11 @@ For example, `docs-site` uses `CLAUDE_BRIDGE_DOCS_SITE_FIRE_URL` and `CLAUDE_BRI
 
 - `owner` is the Grok Bot that owns the package. Only it fires or updates this Project's package. Its name stays in the registry and never reaches the Claude side.
 - `environment` is the Project's Claude cloud environment. It holds the reply settings (allowlist and webhook key). The Project's threads and the relay routine both run in it. The default is `<slug>-env`. Pass `--environment` when the Project already has a dedicated environment under another name.
-- `mode` is `relay` (the relay routine forwards messages to the Project's main thread) or `direct` (the routine does the work itself).
-- `relay_routine` is the name of the Claude routine the bot fires. The default is `<slug>-relay`.
+- `relay_routine` is the name of the Claude routine the bot fires. The Project's main thread creates it under this name. The default is `<slug>-relay`.
 - `webhook_routine` is the folder id of the bot's webhook routine, as the routine list shows it. It's `null` until setup records it with `update --webhook-routine`.
-- `webhook_url` isn't secret, but it lives only here, never in the repository. `bridge.mjs handoff` fills it into the Project instructions or the direct-mode prompt. The webhook key is never stored here.
+- `webhook_url` isn't secret, but it lives only here, never in the repository. `bridge.mjs handoff` fills it into the Project instructions. The webhook key is never stored here.
 
-Version 2 entries also carry `approver` and a `threads.jsonl` log. The helper ignores both, so old packages keep working. Run `grokbot-setup` and `handoff` again to replace the old texts.
+Older entries may also carry `approver`, `mode`, or a `threads.jsonl` log. The helper ignores all three, so old packages keep working. Run `grokbot-setup` and `handoff` again to replace the old texts.
 
 ## Rules
 
