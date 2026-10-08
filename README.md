@@ -57,3 +57,16 @@ npx skills add . --list
 
 Version Codex plugin releases in `.codex-plugin/plugin.json`. The top-level version in
 `.claude-plugin/marketplace.json` versions the Claude marketplace independently.
+
+## count-t CLI
+
+`bin/count-t.js` counts how many times the letter `t` (either case) appears in a string and prints
+only the number. It has no dependencies.
+
+```bash
+node bin/count-t.js "The tattered tent"   # 6
+echo "Tic Tac Toe" | node bin/count-t.js  # 3 (reads stdin when no argument is given)
+```
+
+After `npm link` (or a global install), the same command is available as `count-t`. Run the tests
+with `npm test`.
