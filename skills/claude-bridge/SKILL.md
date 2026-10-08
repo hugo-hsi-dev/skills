@@ -29,7 +29,7 @@ This skill is for setting up and repairing a package. After setup, neither side 
 |---|---|---|
 | Claude | The "ONYO messages" section of the Project instructions | What an ONYO message is, that the main thread orchestrates, how to reply (the webhook URL inline), and when work threads reply directly. Claude writes it itself during setup. It names no bot and no person. |
 | Claude | The relay routine's prompt | "You are a relay": forward the message unchanged to the main thread, and notify the user if that fails. |
-| Grok Bot | The webhook routine's saved prompt | Summarize Claude's reply for the user, relay questions and send the answers back, and do what Claude asks only if the user says yes. It names no Project, so it's the same for every package. |
+| Grok Bot | The webhook routine's saved prompt | Summarize Claude's reply for the user, carry on with next steps that are part of what the user asked for, and take anything new (open questions, unrequested work) to the user first. It names no Project, so it's the same for every package. |
 | Grok Bot | One memory note (scope `agent`) | That the Project is connected, its slug and repo, the exact fire command, that it sends only what the user asked for, and how much context a message needs in the package's mode. |
 
 onyo-mode stays out of the bridge. It's for coding.
@@ -90,7 +90,7 @@ The helper checks that you own the Project package, makes `# ONYO MESSAGE` the f
 
 ## Handle a reply
 
-Your webhook routine's saved prompt handles every reply by itself, without this skill. Claude's replies are free-form Markdown: it writes when the work starts, when it has a question, when it finishes (with a link), or when it fails, and each reply names what it's about. The prompt summarizes the reply for the user and relays questions, then sends the user's answer back the way the memory note says. If Claude asks for something to be done on the bot's side, the bot asks the user and does it only if they say yes.
+Your webhook routine's saved prompt handles every reply by itself, without this skill. Claude's replies are free-form Markdown: it writes when the work starts, when it has a question, when it finishes (with a link), or when it fails, and each reply names what it's about. The prompt summarizes the reply for the user and relays questions, then sends the user's answer back the way the memory note says. Next steps that are part of what the user already asked for, such as reviewing the PR Claude opened or answering a question the user already settled, go ahead without asking. Anything new, such as messaging people, merging, deleting, spending money, or unrelated work, waits for the user's yes.
 
 ## Repair or change a package
 

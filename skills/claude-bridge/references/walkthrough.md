@@ -48,7 +48,7 @@ Then:
 1. **Write the reply routine prompt.** Create a routine with a webhook trigger named `Claude replies <slug>`, with the printed REPLY ROUTINE PROMPT as its saved prompt, unchanged. Read the routine's folder id from your routine list and record it with `bridge.mjs update --slug <slug> --as <agent id> --webhook-routine <folder id>`.
 2. **Save the memory note.** Save the printed MEMORY NOTE with your memory tool's write, scope `agent`, unchanged.
 
-The routine prompt runs on every reply, often with nobody in the chat. It's short and names no Project: it summarizes Claude's reply, relays questions, and asks the user before doing anything Claude asks for. The memory note tells you the Project is connected and how to send it a message, including the answers to Claude's questions. Neither needs a skill loaded. onyo-mode is for coding and stays out of the bridge.
+The routine prompt runs on every reply, often with nobody in the chat. It's short and names no Project: it summarizes Claude's reply, carries on with next steps that are part of what the user asked for, and takes anything new to the user first. The memory note tells you the Project is connected and how to send it a message, including the answers to Claude's questions. Neither needs a skill loaded. onyo-mode is for coding and stays out of the bridge.
 
 If the helper moves, or the Project's name, repo, owner, or mode changes, run `grokbot-setup` again and replace the memory note.
 
