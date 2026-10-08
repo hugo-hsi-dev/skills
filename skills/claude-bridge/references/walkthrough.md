@@ -15,16 +15,15 @@ Throughout, `bridge.mjs` means `node <this skill>/scripts/bridge.mjs`, and `<age
 
 ## 1. Agree on the Project
 
-Ask four things in one message:
+Ask three things in one message:
 
 1. The Claude Project's name, for example "Docs Site".
 2. The repository the work happens in, as `owner/repo`.
 3. Their Claude plan. Pro and Max keep the webhook key in a network secret. Team and Enterprise have to use an environment variable instead (see step 5).
-4. Which environment to use. A Project runs in whatever environment is selected in Project settings > Environment (Default unless they picked another), and it doesn't get its own. A dedicated environment is recommended. Reusing the current one is fine if they accept that every session and routine in it gets the api2.cursor.sh allowlist and the webhook secret.
 
 Derive the Project slug following [`registry-format.md`](registry-format.md). Run `bridge.mjs show`. If the Project already has a package owned by another bot, tell the user who owns it and stop.
 
-The package's names come from the slug: the environment `<slug>-env`, the relay routine `<slug>-relay`, and your webhook routine `Claude replies <slug>`. If the user keeps an existing environment, pass its name with `--environment`. Claude can't create or edit environments or secrets, so those stay user clicks. Read "The Project's cloud environment" in SKILL.md before you go on, because most setup failures happen there.
+The package's names come from the slug: the environment `<slug>-env`, the relay routine `<slug>-relay`, and your webhook routine `Claude replies <slug>`. The environment must be dedicated to this Project, because it holds the secret that reaches your webhook. Never use Default or an environment other Projects share. A Project runs in whatever environment is selected in Project settings > Environment (Default unless changed) and doesn't get its own, and Claude can't create or edit environments or secrets, so the user creates it. Pass `--environment` only if the dedicated environment already exists under another name. Read "The Project's cloud environment" in SKILL.md before you go on, because most setup failures happen there.
 
 ## 2. Claim the Project
 
@@ -70,9 +69,9 @@ bridge.mjs handoff --slug <slug> --as <agent id>
 
 It fills in [`claude-side-setup.md`](claude-side-setup.md) from the registry, and embeds the Project instructions section and the relay prompt. It refuses to print if a placeholder is still empty. Send the user one message with:
 
-1. The output, as one code block, to paste into the Claude Project's main thread.
+1. The output, as one code block, to paste into the Claude Project's main thread. If you know the Project's link (`https://claude.ai/code/project/<project id>`, or whatever the user pasted), put it right above the block.
 2. The ready-made **Webhook key** link from your routine status, outside the code block. Say that the key goes straight into the Project's environment, never into either chat.
-3. One line on what happens next: the main thread writes its own instructions, creates the relay routine, and lists the environment clicks. Then the user adds the API trigger from the routine list in the left sidebar at claude.ai/code. When the user reaches the Generate token click, they come back here first.
+3. One line on what happens next: the main thread writes its own instructions, creates the relay routine, and lists the environment clicks. Then it gives the routine's direct link, where the user adds the API trigger. When the user reaches the Generate token click, they come back here first.
 
 **Team and Enterprise plans** have no Network secrets section. Tell the user, outside the code block, to do this instead of the network-secret click:
 
@@ -81,7 +80,7 @@ It fills in [`claude-side-setup.md`](claude-side-setup.md) from the registry, an
 
 ## 6. Store the fire URL and token
 
-The user opens the routine list in the left sidebar at claude.ai/code, selects the relay routine, clicks **Add another trigger**, chooses **API**, and tells you they're ready before clicking **Generate token**. The Project never generates or shows the token. Then send two secret-requests, one per turn. The token is shown only once, so ask the user to keep that window open until both are stored, and to copy each value straight into your masked secret prompt, never into a chat:
+The user opens the relay routine from the direct link the main thread gave (fallback: the routine list in the left sidebar at claude.ai/code), clicks **Add another trigger**, chooses **API**, and tells you they're ready before clicking **Generate token**. The Project never generates or shows the token. Then send two secret-requests, one per turn. The token is shown only once, so ask the user to keep that window open until both are stored, and to copy each value straight into your masked secret prompt, never into a chat:
 
 - Secret `CLAUDE_BRIDGE_<SLUG>_FIRE_URL`, labeled "Claude relay routine fire URL for <slug>".
 - Secret `CLAUDE_BRIDGE_<SLUG>_TOKEN`, labeled "Claude relay routine token for <slug>".
@@ -99,7 +98,7 @@ EOF
 Expect one reply within a few minutes. Your reply routine handles it, so this also tests its prompt.
 
 - **It arrives:** tell the user the Project is connected and that they can ask you to send Claude anything in any chat.
-- **Nothing arrives:** ask the user to open the Project's main thread and the relay routine's latest run, and tell you what they say. Claude reports a failed POST there. A `403` with `host_not_allowed`, a `401`, or an empty variable points at the environment. Use the troubleshooting table in SKILL.md.
+- **Nothing arrives:** ask the user to open the Project's main thread and the relay routine's latest run (from the routine link the main thread gave), and tell you what they say. Claude reports a failed POST there. A `403` with `host_not_allowed`, a `401`, or an empty variable points at the environment. Use the troubleshooting table in SKILL.md.
 
 After any later change on the Claude side, send one test. Environment changes reach only new threads.
 
