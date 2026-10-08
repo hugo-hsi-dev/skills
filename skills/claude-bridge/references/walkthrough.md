@@ -71,7 +71,7 @@ It fills in [`claude-side-setup.md`](claude-side-setup.md) from the registry, an
 
 1. The output, as one code block, to paste into the Claude Project's main thread.
 2. The ready-made **Webhook key** link from your routine status, outside the code block. Say that the key goes straight into the Project's environment, never into either chat.
-3. One line on what happens next: the main thread writes its own instructions, creates the relay routine, and lists the environment clicks. Then it tells the user where to open the routine to add the API trigger. When the user reaches the Generate token click, they come back here first.
+3. One line on what happens next: the main thread writes its own instructions, creates the relay routine, and lists the environment clicks. Then the user adds the API trigger from the routine list in the left sidebar at claude.ai/code. When the user reaches the Generate token click, they come back here first.
 
 **Team and Enterprise plans** have no Network secrets section. Tell the user, outside the code block, to do this instead of the network-secret click:
 
@@ -80,7 +80,7 @@ It fills in [`claude-side-setup.md`](claude-side-setup.md) from the registry, an
 
 ## 6. Store the fire URL and token
 
-The user opens the relay routine where the main thread said it is, clicks **Add another trigger**, chooses **API**, and tells you they're ready before clicking **Generate token**. The Project never generates or shows the token. Then send two secret-requests, one per turn. The token is shown only once, so ask the user to keep that window open until both are stored, and to copy each value straight into your masked secret prompt, never into a chat:
+The user opens the routine list in the left sidebar at claude.ai/code, selects the relay routine, clicks **Add another trigger**, chooses **API**, and tells you they're ready before clicking **Generate token**. The Project never generates or shows the token. Then send two secret-requests, one per turn. The token is shown only once, so ask the user to keep that window open until both are stored, and to copy each value straight into your masked secret prompt, never into a chat:
 
 - Secret `CLAUDE_BRIDGE_<SLUG>_FIRE_URL`, labeled "Claude relay routine fire URL for <slug>".
 - Secret `CLAUDE_BRIDGE_<SLUG>_TOKEN`, labeled "Claude relay routine token for <slug>".

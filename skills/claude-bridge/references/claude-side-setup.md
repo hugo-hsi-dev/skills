@@ -29,9 +29,9 @@ A relay routine will forward each message to this Project's main thread, and you
    c. In Project settings > Environment, choose the handoff's environment.
    Wait until I say they're done.
 
-3. Create the relay routine yourself, as this Project's own routine: name it after the handoff's relay_routine, give it the ROUTINE PROMPT below unchanged, run it in the handoff's environment, start a new session on each fire, give it no schedule (it only runs when fired), and give it what it needs to reach this Project's main thread. Tell me in one line that it exists and where I can open it.
+3. Create the relay routine yourself, as this Project's own routine: name it after the handoff's relay_routine, give it the ROUTINE PROMPT below unchanged, run it in the handoff's environment, start a new session on each fire, give it no schedule (it only runs when fired), and give it what it needs to reach this Project's main thread. Tell me in one line that it exists.
 
-4. Don't add the API trigger or generate the token yourself. Tell me exactly where to open the relay routine. There I click Add another trigger and choose API, tell my assistant I'm ready before I click Generate token (it's shown only once), and copy the fire URL and token straight into my assistant's masked secret prompts, never into a chat.
+4. Don't add the API trigger or generate the token yourself. That click is mine: I open the routine list in the left sidebar at claude.ai/code and select the relay routine, click Add another trigger and choose API, tell my assistant I'm ready before I click Generate token (it's shown only once), and copy the fire URL and token straight into my assistant's masked secret prompts, never into a chat.
    Then stop. My assistant sends a test message once the token is stored.
 
 Keep your messages short.
@@ -48,8 +48,8 @@ Keep your messages short.
 ## What the main thread can and can't do
 
 - **It can:** change the Project instructions and add a repository.
-- **It can create the relay routine (partly verified).** A Claude Code session in this setup has a routine-creating tool. That tool takes a name, a prompt, an environment, a fresh-session-per-fire option, no schedule, and a list of connectors. Unverified: whether a routine created from the Project's main thread counts as Project-owned, and which connector the relay needs to reach the main thread (earlier tests used the claude-code-remote connector).
-- **The user adds the API trigger and generates the token.** The Project never generates or shows the token, so it reaches only the bot's masked secret prompts. Unverified: where a Project-owned routine shows up for the user, and whether the user can open it to add a trigger. The main thread says where to find it.
+- **It creates the relay routine.** Routines the Project's main thread creates are attached to the Project automatically (verified by the user). Unverified: which connector the relay needs to reach the main thread. Earlier tests used claude-code-remote.
+- **The user adds the API trigger and generates the token.** They open the routine list in the left sidebar at claude.ai/code, select the relay routine, add an API trigger, and generate the token (verified by the user). The Project never generates or shows the token, so it reaches only the bot's masked secret prompts.
 - **It can't:** create or edit cloud environments, add network secrets, or pick the Project's environment. Those stay as clicks for the user.
 - **Team and Enterprise plans** have no Network secrets section. The bot tells the user about the variable alternative outside this paste (see the walkthrough), so the prompt stays one path.
 - **Changing the rules later.** Ask the main thread to replace its "ONYO messages" section with the new one. The relay prompt never changes.
