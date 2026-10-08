@@ -1,6 +1,6 @@
 # Project registry
 
-The unit is a **Project package**: one Claude Project, the Claude cloud environment that belongs to it, and the bridge into it (the relay routine that forwards messages to the Project's main thread, and the Grok Bot webhook routine that receives replies). The registry is keyed by Project. Each entry records everything about the package except the two secrets.
+The unit is a **Project package**: one Claude Project, the Claude cloud environment it runs in, and the bridge into it (the relay routine that forwards messages to the Project's main thread, and the Grok Bot webhook routine that receives replies). The registry is keyed by Project. Each entry records everything about the package except the two secrets.
 
 Every Grok Bot on a computer shares one filesystem and one set of secrets. The registry stops bots from taking over each other's Projects.
 
@@ -64,7 +64,7 @@ For example, `docs-site` uses `CLAUDE_BRIDGE_DOCS_SITE_FIRE_URL` and `CLAUDE_BRI
 ```
 
 - `owner` is the Grok Bot that owns the package. Only it fires or updates this Project's package. Its name stays in the registry and never reaches the Claude side.
-- `environment` is the Project's Claude cloud environment. It holds the reply settings (allowlist and webhook key). The Project's threads and the relay routine both run in it. The default is `<slug>-env`. Pass `--environment` when the Project already has a dedicated environment under another name.
+- `environment` is the Project's Claude cloud environment. It holds the reply settings (allowlist and webhook key). The Project's threads and the relay routine both run in it. The default is `<slug>-env`. Pass `--environment` when the user keeps the Project's current environment or one with another name. A Project uses whatever environment is selected in Project settings > Environment (Default unless changed). It doesn't get its own automatically.
 - `relay_routine` is the name of the Claude routine the bot fires. The Project's main thread creates it under this name. The default is `<slug>-relay`.
 - `webhook_routine` is the folder id of the bot's webhook routine, as the routine list shows it. It's `null` until setup records it with `update --webhook-routine`.
 - `webhook_url` isn't secret, but it lives only here, never in the repository. `bridge.mjs handoff` fills it into the Project instructions. The webhook key is never stored here.

@@ -1,6 +1,6 @@
 # Setup walkthrough: a Project package
 
-You set up a **Project package**: one Claude Project, its own Claude cloud environment, and the bridge into it (a relay routine on the Claude side, a webhook routine on yours). Everything is named from the Project's slug.
+You set up a **Project package**: one Claude Project, the Claude cloud environment it runs in, and the bridge into it (a relay routine on the Claude side, a webhook routine on yours). Everything is named from the Project's slug.
 
 Setup runs on the Grok Bot side. When the user asks to connect a Claude Project, do your half here. Then give the user one self-contained prompt to paste into the Project's main thread. That prompt asks the main thread to write the "ONYO messages" section of the Project instructions and to create the relay routine itself, as a Project-owned routine. The user does the environment clicks and one routine click: adding the API trigger and generating its token. When the user comes back, store the routine secrets and send a test message.
 
@@ -15,15 +15,16 @@ Throughout, `bridge.mjs` means `node <this skill>/scripts/bridge.mjs`, and `<age
 
 ## 1. Agree on the Project
 
-Ask three things in one message:
+Ask four things in one message:
 
 1. The Claude Project's name, for example "Docs Site".
 2. The repository the work happens in, as `owner/repo`.
 3. Their Claude plan. Pro and Max keep the webhook key in a network secret. Team and Enterprise have to use an environment variable instead (see step 5).
+4. Which environment to use. A Project runs in whatever environment is selected in Project settings > Environment (Default unless they picked another), and it doesn't get its own. A dedicated environment is recommended. Reusing the current one is fine if they accept that every session and routine in it gets the api2.cursor.sh allowlist and the webhook secret.
 
 Derive the Project slug following [`registry-format.md`](registry-format.md). Run `bridge.mjs show`. If the Project already has a package owned by another bot, tell the user who owns it and stop.
 
-The package's names come from the slug: the environment `<slug>-env`, the relay routine `<slug>-relay`, and your webhook routine `Claude replies <slug>`. If the Project already has a dedicated environment, use its name with `--environment`. Never use Default, and never use an environment that other Projects share. Read "The Project's cloud environment" in SKILL.md before you go on, because most setup failures happen there.
+The package's names come from the slug: the environment `<slug>-env`, the relay routine `<slug>-relay`, and your webhook routine `Claude replies <slug>`. If the user keeps an existing environment, pass its name with `--environment`. Claude can't create or edit environments or secrets, so those stay user clicks. Read "The Project's cloud environment" in SKILL.md before you go on, because most setup failures happen there.
 
 ## 2. Claim the Project
 
