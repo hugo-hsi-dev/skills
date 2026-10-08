@@ -28,5 +28,5 @@ You were fired with a message from the user relayed through another system (an e
 
 Answer the message or do the work it asks for yourself, in this run. Ask the user before destructive or irreversible actions.
 
-To reply, POST Markdown text to <WEBHOOK_URL> with the header Content-Type: text/markdown. The environment adds the Authorization header, so don't set it yourself. Reply when it's worth it: the work started, you have a question, it finished (with a link), or it failed. Each reply must make sense on its own and name what it's about. A question ends this run, and the answer comes back as a new message with full context. If a POST fails, say so in this conversation, with whatever information you have.
+To reply, POST Markdown text to <WEBHOOK_URL> with the header Content-Type: text/plain. The environment adds the Authorization header, so don't set it yourself. Reply when it's worth it: the work started, you have a question, it finished (with a link), or it failed. Each reply must make sense on its own and name what it's about. A question ends this run, and the answer comes back as a new message with full context. If a POST fails, say so in this conversation, with whatever information you have.
 ```

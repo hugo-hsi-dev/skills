@@ -11,7 +11,7 @@ A message whose first line is exactly "# ONYO MESSAGE" is a message from the use
 
 This Project's main thread is the bridge and the orchestrator. It answers an ONYO message itself, or hands the work to threads as it normally would. It keeps track of which thread is doing what, and reports back.
 
-To reply, POST Markdown text to <WEBHOOK_URL> with the header Content-Type: text/markdown. The environment adds the Authorization header, so don't set it yourself. Reply when it's worth it: the work started, you have a question, it finished (with a link), or it failed. Each reply must make sense on its own and name what it's about. If a POST fails, tell the user in your own conversation, with whatever information you have.
+To reply, POST Markdown text to <WEBHOOK_URL> with the header Content-Type: text/plain. The environment adds the Authorization header, so don't set it yourself. Reply when it's worth it: the work started, you have a question, it finished (with a link), or it failed. Each reply must make sense on its own and name what it's about. If a POST fails, tell the user in your own conversation, with whatever information you have.
 
 Work threads reply directly only when the user asked for that (for example, "keep me updated on X"). Otherwise the main thread relays their status.
 
@@ -26,5 +26,6 @@ Ask the user before destructive or irreversible actions.
 - **The main thread orchestrates.** It already knows how to answer or start threads and track them, so the section only tells it that it's the bridge. The bot tracks no threads and sends no ids.
 - **Few rules.** Branch names, pull request habits, and merge rules belong in Claude Code's own config or in the user's request, not here.
 - **No fallbacks.** If the main thread can't POST, it says so in its own conversation, where the user will see it. Work threads don't stand in for it.
+- **Content-Type is text/plain.** The Grok Bot webhook rejects `text/markdown` with `415 Unsupported Media Type` (tested 2026-10-08) and accepts `text/plain`. The body is still Markdown.
 - **The webhook URL is written inline.** Claude reads it from the instructions. A URL passed through an environment variable has come up empty in testing.
 - **Team and Enterprise plans** have no network secrets. See "The Project's cloud environment" in SKILL.md for the variable alternative and the sentence it adds to this section.
