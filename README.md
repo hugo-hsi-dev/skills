@@ -68,5 +68,14 @@ node bin/count-t.js "The tattered tent"   # 6
 echo "Tic Tac Toe" | node bin/count-t.js  # 3 (reads stdin when no argument is given)
 ```
 
+Use `--letter <char>` (or `-l <char>`, or `--letter=<char>`) to count a different single character,
+also case-insensitively. A value that is not exactly one character prints an error to stderr and
+exits with code 1.
+
+```bash
+node bin/count-t.js --letter a "Banana Bread"  # 4
+echo "Foo Bar" | node bin/count-t.js -l o      # 2
+```
+
 After `npm link` (or a global install), the same command is available as `count-t`. Run the tests
 with `npm test`.
