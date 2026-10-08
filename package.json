@@ -1,0 +1,13 @@
+{
+  "name": "hugo-hsi-skills",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Agent skills plus a small count-t CLI.",
+  "license": "UNLICENSED",
+  "bin": {
+    "count-t": "bin/count-t.js"
+  },
+  "scripts": {
+    "test": "node --test"
+  }
+}
